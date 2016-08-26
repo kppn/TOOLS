@@ -1,0 +1,7 @@
+
+radius_authenticator.pl  - RADIUS‚ÌResponse Authenticatior‚ğŒvZ‚·‚é -
+
+
+usage
+	’†‚ğŒ©‚ê‚Î”»‚é
+

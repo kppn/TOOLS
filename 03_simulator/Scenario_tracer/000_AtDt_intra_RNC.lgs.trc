@@ -1,0 +1,1686 @@
+#
+# 初期設定
+# --------
+#   transit(state); を必ず含める必要があります。
+set {
+    # 変数宣言
+    #  - public:シナリオが持つ変数。測定対象とすることが可能です。
+    #  - private:このシナリオ用に生成された加入者ごとの変数。
+    #  - timer:タイマーを使用する際にタイマー時間を定義します。(msec)
+    # シナリオタイプ
+    generation_type = active;
+
+    control CS_NODE_SELECTOR = 1; #■■
+
+    control ATTACH_ON        = 0; #■■
+
+    # 処理切替え用
+    timer   T_CREF_RETRY      = 30000; # CREFによる不完了時のRETRY待機時間(msec)
+    timer   T_RLSD_RETRY      = 30000; # RLSDによる不完了時のRETRY待機時間(msec)
+    timer   T_ATTACH          = 10;    # ATTACH.req送信待ちタイマ
+    timer   T_DETACH          = 10;    # DETACH.req送信待ちタイマ
+    timer   T_SECURITY_MODE   = 10;    #
+    timer   T_KILL            = 120000; #KILL TIMER
+    timer   NO_ACK_TIMER      = 1800000; #■■12B 信号再送信用タイマ
+    
+    range_timer T_ID_RES      =( 162, 351, 1);  #identity_response送信待ち時間
+    range_timer T_AUTH_RES    =( 287, 1456, 1); #authentication_and_ciphering_response送信待ち時間
+    range_timer T_SMC         =( 191, 409, 1);  #security_mode_complete送信待ち時間
+    range_timer T_IRC         =( 362, 722, 1);  #iu_release_complete送信待ち時間(ATTACH)
+    range_timer T_IRC_D       =( 426, 910, 1);  #iu_release_complete送信待ち時間(DETACH)
+    range_timer T_ATTACH_COMP =( 177, 396, 1);  #attach_complete送信待ち時間
+
+    # Early UE Handling制御用
+    private ident_type     = 0;  # MS Identity type
+    private cref_cause     = 0x00;#CREF CAUSE
+    control isID           = 1;  # Identity Response
+                                 # IMEISV(0:TRUE/1:FALSE)
+    
+    # 状態用
+    private sequence_completed = 0; # 試しシーケンス完了フラグ(0:FALSE/1:TRUE)
+    private isReceivedKill = 0;     # シナリオ停止受信フラグ(0:FALSE/1:TRUE)
+
+    private cs_select      = 32;   #■■
+
+    # 計測用
+    public  ATTEMPT_ATTACH      = 0; # アタッチ要求数
+    public  COMPLETE_ATTACH     = 0; # アタッチコンプリート数
+    public  ATTACH_REJECT       = 0; # アタッチリジェクト数
+    public  CREF_COUNTER_ATTACH_SGP = 0; # CREF 受信数
+    public  CREF_COUNTER_ATTACH_LB = 0; # CREF 受信数
+    public  CREF_COUNTER_DETACH = 0; # CREF 受信数 ■■12B
+    public  ATTEMPT_DETACH      = 0; # デタッチ要求数
+    public  COMPLETE_DETACH     = 0; # デタッチ完了数
+    public  SEQUENCE_COMPLETE_SUBSCRIBER = 0; # 試しシーケンス完了数
+    public  NULL_STATE_SUBSCRIBER = 0; # 死亡加入者数
+    public  ABNORMAL_RLSD_COUNTER = 0; #
+    public  CREF_COUNTER          = 0; # CREF受信数
+
+    public  CR_COUNTER          = 0;
+    public  CC_COUNTER          = 0;
+    public  RLC_COUNTER         = 0;
+    public  RLSD_COUNTER        = 0;
+
+
+    private sce_trc_event = 0x00000000;
+
+    transit(STATE_ZERO);                    #■■
+}
+
+in STATE_ZERO                      #■■
+{
+    case control( ATTACH_ON )
+    {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x01);
+        if( 1 == ATTACH_ON )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x02);
+            transit_execute(STATE_BEFORE_ATTACH); # STATE_BEFORE_ATTACH 状態へ遷移
+        }
+    }
+}                                  #■■
+
+#
+# STATE_BEFORE_ATTACH
+# ------------------
+#   ATTACH-REQUESTを送信する前の状態
+#
+in STATE_BEFORE_ATTACH {
+    # executionイベント
+    # -----------------
+    #   この状態に遷移後の execute() により起動されます。
+    case execution {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x03);
+        if( isReceivedKill == 1 ){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x04);
+            transit_execute(STATE_END);
+        }
+        else{
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x05);
+            attempt(CR-INITIAL_UE_MESSAGE-ATTACH_REQUEST_1);
+            increase(CR_COUNTER);
+            start_timer(NO_ACK_TIMER);#■■12B
+        }
+        increase( ATTEMPT_ATTACH, 1 );
+        # ATTACH_REQ_SENT 状態へ遷移
+        transit(ATTACH_REQ_SENT);
+    }
+    case kill {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x06);
+       transit(NULL_STATE);
+    }
+}
+
+#
+# ATTACH_REQ_SENT
+# ---------------
+#
+in ATTACH_REQ_SENT {
+    case receive( CC ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x07);
+        increase(CC_COUNTER);
+    }
+    case receive( DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_REQUEST ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x08);
+        getsigdata( ident_type, 21, 1, 0xf0 );
+        start_timer(T_AUTH_RES);
+    }
+    case expiry(T_AUTH_RES){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x09);
+        if( ident_type == 0x10 )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x0a);
+             percentage{
+                percent(75.00){
+                send( DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_IMEISV );
+                }
+                percent(){
+                send( DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_IMEISV_00 );
+                }
+              }
+            transit( ATTACH_REQ_SENT ); # ■■RNCタイマ変更対応
+        }
+        else {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x0b);
+        send( DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_1 );
+        }
+    }
+    case receive( DT1 - COMMON_ID ){         multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x0c);  }
+    case receive( DT1-SECURITY_MODE_COMMAND ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x0d);
+        start_timer(T_SMC);
+    }
+    case expiry(T_SMC){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x0e);
+        send( DT1-SECURITY_MODE_COMPLETE_1 );
+        transit( SECUTITY_MODE_COMPLETE_SENT );
+    }
+    case receive( CREF ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x0f);
+        getsigdata( cref_cause, 4, 1, 0xff );
+        if(cref_cause == 0x00){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x10);
+         increase( CREF_COUNTER_ATTACH_SGP, 1 );
+         stop_timer(NO_ACK_TIMER);#■■12B
+         transit_execute( STATE_BEFORE_ATTACH );
+        }
+        else{
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x11);
+         increase( CREF_COUNTER_ATTACH_LB, 1 );
+         stop_timer(NO_ACK_TIMER);#■■12B
+         transit_execute( STATE_BEFORE_ATTACH );
+        }
+    }
+}
+
+#
+# SECUTITY_MODE_COMPLETE_SENT
+# ---------------------------
+#
+in SECUTITY_MODE_COMPLETE_SENT {
+    # ATTACH ACCEPT に P-TMSI がある場合
+    case receive( DT1-DIRECT_TRANSFER-ATTACH_ACCEPT, WITH_PTMSI ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x12);
+        start_timer(T_ATTACH_COMP);
+    }
+    case expiry(T_ATTACH_COMP){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x13);
+        send( DT1-DIRECT_TRANSFER-ATTACH_COMPLETE_1 );
+        increase( COMPLETE_ATTACH , 1 );
+        transit( ATTACH_SUCCESS );
+    }
+    # ATTACH ACCEPT に P-TMSI がない場合
+    case receive( DT1-DIRECT_TRANSFER-ATTACH_ACCEPT ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x14);
+        increase( COMPLETE_ATTACH , 1 );
+        transit( ATTACH_SUCCESS );
+    }
+    case receive( DT1-DIRECT_TRANSFER-ATTACH_REJECT ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x15);
+        increase( ATTACH_REJECT, 1 );#■■12B
+    }
+}
+
+#
+# ATTACH_SUCCESS
+# --------------
+#
+in ATTACH_SUCCESS {
+    case receive( DT1-IU_RELEASE_COMMAND ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x16);
+        start_timer(T_IRC); #■■RNCタイマ変更対応
+    }
+    case expiry( T_IRC ) {         multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x17);  #■■RNCタイマ変更対応
+        send( DT1-IU_RELEASE_COMPLETE_1 );
+    }
+    case receive( RLSD ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x18);
+        increase(RLSD_COUNTER);
+        send( RLC );
+        increase(RLC_COUNTER);
+        transit_execute( DETACH_REQUEST );
+    }
+   case receive( DT1-DIRECT_TRANSFER-GMM_INFORMATION ) {        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x19); }
+    case receive( DT1-DIRECT_TRANSFER-ATTACH_ACCEPT, WITH_PTMSI ){#■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x1a);
+        start_timer(T_ATTACH_COMP);                               #■■12B
+    }                                                             #■■12B
+    case expiry(T_ATTACH_COMP){                                   #■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x1b);
+        send( DT1-DIRECT_TRANSFER-ATTACH_COMPLETE_1 );            #■■12B
+        increase( COMPLETE_ATTACH , 1 );                          #■■12B
+    }                                                             #■■12B
+    # ATTACH ACCEPT に P-TMSI がない場合                          #■■12B
+    case receive( DT1-DIRECT_TRANSFER-ATTACH_ACCEPT ){            #■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x1c);
+        increase( COMPLETE_ATTACH , 1 );                          #■■12B
+    }                                                             #■■12B
+}
+
+#
+# IU_RELEASE1
+# --------------
+#
+in IU_RELEASE1 {
+    case receive( DT1-IU_RELEASE_COMMAND ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x1d);
+        send( DT1-IU_RELEASE_COMPLETE_1 );
+    }
+    case receive( RLSD ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x1e);
+        increase(RLSD_COUNTER);
+        send( RLC );
+        increase(RLC_COUNTER);
+        transit_execute( STATE_END );
+    }
+}
+
+#
+# DETACH_REQUEST
+# --------------
+#
+in DETACH_REQUEST {
+    case execution {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x1f);
+            start_timer( T_DETACH );
+    }
+    case expiry( T_DETACH ) {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x20);
+        send( CR-INITIAL_UE_MESSAGE-DETACH_REQUEST_2 );   #■■12B
+        increase( ATTEMPT_DETACH, 1 );
+        increase(CR_COUNTER);
+    }
+    case receive( CC ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x21);
+        increase(CC_COUNTER);
+    }
+    case receive( DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_REQUEST ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x22);
+        send( DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_1 );
+    }
+    case receive( DT1-DIRECT_TRANSFER-DETACH_ACCEPT ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x23);
+        increase( COMPLETE_DETACH, 1 );
+        transit( DETACH_REQUEST_2 );
+    }
+    case receive( CREF ){                        #■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x24);
+        increase( CREF_COUNTER_DETACH, 1 );      #■■12B
+        stop_timer(NO_ACK_TIMER);                #■■12B
+        transit_execute( STATE_BEFORE_ATTACH );  #■■12B
+    }                                            #■■12B
+}
+
+#
+# DETACH_REQUEST_2
+# ----------------
+#
+in DETACH_REQUEST_2 {
+    case receive( DT1-IU_RELEASE_COMMAND ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x25);
+        start_timer(T_IRC_D);
+    }
+    case expiry(T_IRC_D){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x26);
+        send( DT1-IU_RELEASE_COMPLETE_1 );
+    }
+    case receive( RLSD ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x27);
+        increase(RLSD_COUNTER);
+        send( RLC );
+        increase(RLC_COUNTER);
+        if( sequence_completed == 0 ) {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x28);
+            increase( SEQUENCE_COMPLETE_SUBSCRIBER, 1 );
+            setvariable( sequence_completed, 1 );
+        }
+        stop_timer(NO_ACK_TIMER);                #■■12B
+        transit_execute( STATE_BEFORE_ATTACH );
+    }
+}
+
+#
+# STATE_END
+# ---------
+#
+in STATE_END {
+    case execution {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x29);
+        increase( NULL_STATE_SUBSCRIBER, 1 );
+        if( 1 == isReceivedKill ) {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x2a);
+            transit(NULL_STATE);
+        }
+        else {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x2b);
+            transit_execute(STATE_BEFORE_ATTACH);
+        }
+    }
+    default {
+        increase( NULL_STATE_SUBSCRIBER, 1 );
+    #    snap(" in STATE_END default");
+        transit_execute(STATE_BEFORE_ATTACH);
+    }
+    case kill {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x2c);
+        increase( NULL_STATE_SUBSCRIBER, 1 );
+        transit(NULL_STATE);
+    }
+}
+
+#
+# ANY_STATE
+# ---------
+#
+in ANY_STATE {
+    case receive( CREF ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x2d);
+        increase( CREF_COUNTER, 1 );
+        if( isReceivedKill == 1 ){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x2e);
+            transit_execute( STATE_END );
+        }
+        else{
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x2f);
+            start_timer( T_CREF_RETRY );
+        }
+    }
+    case  receive( DT1-DIRECT_TRANSFER-GMM_STATUS ) {                         #■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x30);
+    }                                                                        #■■12B
+    case receive( DT1-DIRECT_TRANSFER-PTMSI_REALLOCATION_COMMAND ) {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x31);
+        send ( DT1-DIRECT_TRANSFER-PTMSI_REALLOCATION_COMPLETE ) ;
+    }
+    case receive( DT1-DIRECT_TRANSFER-IDENTITY_REQUEST ) {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x32);
+        getsigdata( ident_type, 21, 1, 0x0f );
+        start_timer(T_ID_RES);
+    }
+    case expiry(T_ID_RES){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x33);
+        if( 3 == ident_type )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x34);
+            if( isID == 0 ){
+                multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x35);
+                send( DT1-DIRECT_TRANSFER-IDENTITY_RESPONSE_IMEISV );
+            }
+            else
+            {
+                multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x36);
+                send( DT1-DIRECT_TRANSFER-IDENTITY_RESPONSE_IMSI );
+            }
+        }
+        if( 1 == ident_type ){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x37);
+            send( DT1-DIRECT_TRANSFER-IDENTITY_RESPONSE_IMSI );
+        }
+    }
+    case receive( IT ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x38);
+    }
+    case expiry( T_CREF_RETRY ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x39);
+        if( isReceivedKill == 1 ){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x3a);
+            transit_execute( STATE_END );
+        }
+        else{
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x3b);
+            transit_execute( STATE_BEFORE_ATTACH );
+        }
+    }
+    case receive( DT1-IU_RELEASE_COMMAND ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x3c);
+        send( DT1-IU_RELEASE_COMPLETE_1 );
+    }
+    case receive( DT1-DIRECT_TRANSFER-ATTACH_REJECT ){#■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x3d);
+        increase( ATTACH_REJECT, 1 );                 #■■12B
+    }                                                 #■■12B
+    case receive( RLSD ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x3e);
+        increase(RLSD_COUNTER);
+        send( RLC );
+        increase(RLC_COUNTER);
+        increase( ABNORMAL_RLSD_COUNTER );
+        if( isReceivedKill == 1 ){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x3f);
+            transit_execute( STATE_END );
+        }
+        else{
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x40);
+            start_timer( T_RLSD_RETRY );
+        }
+    }
+    case expiry( T_RLSD_RETRY ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x41);
+        if( isReceivedKill == 1 ){
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x42);
+            transit_execute( STATE_END );
+        }
+        else{
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x43);
+            transit_execute( STATE_BEFORE_ATTACH );
+        }
+    }
+
+    case control( CS_NODE_SELECTOR ) {  #■■
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x44);
+        if( 1 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x45);
+            setvariable(cs_select, 32);
+        }
+        if( 2 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x46);
+            setvariable(cs_select, 64);
+        }
+        if( 3 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x47);
+            setvariable(cs_select, 96);
+        }
+        if( 4 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x48);
+            setvariable(cs_select, 128);
+        }
+        if( 5 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x49);
+            setvariable(cs_select, 160);
+        }
+        if( 6 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x4a);
+            setvariable(cs_select, 192);
+        }
+        if( 7 == CS_NODE_SELECTOR )
+        {
+            multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x4b);
+            setvariable(cs_select, 224);
+        }
+        setsigdata( CR-INITIAL_UE_MESSAGE-ATTACH_REQUEST_1, cs_select, 140, 1, 0xe0); #■■
+        snap( "cs_selector", cs_select );
+    }                                   #■■
+
+    case expiry( NO_ACK_TIMER ){       #■■12B
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x4c);
+     abort();                                 #■■12B
+     transit_execute( STATE_BEFORE_ATTACH );  #■■12B
+    }                                         #■■12B
+
+    # killイベント
+    # ------------
+    #   シナリオが停止された場合に起動されます。
+    #
+    case kill {
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x4d);
+        setvariable( isReceivedKill, 1 );
+        start_timer( T_KILL );
+    }
+    case expiry( T_KILL ){
+        multiply(sce_trc_event, sce_trc_event, 0x100); increase(sce_trc_event, 0x4e);
+        transit_execute(STATE_END);
+    }
+}
+
+#==============================================================================
+# 送信用データ
+#==============================================================================
+
+pdu CR-INITIAL_UE_MESSAGE-ATTACH_REQUEST_1 {
+ 01       # SCCP CR
+ CC CC CC # SCCP S-LR(Don't Care)
+ 02 02 04 02 42 8E 04 02 42 8E 0F
+ 82 # SCCP length ■■
+ 00 # extension(1)/bitmap(1)/pad(6)   --- RANAP 
+ 13 # procedureCode : InitialUE-Message
+ 40 # criticality(2)=1:ignore/pad(6)
+ 7e # length ■■
+ 40 # extension(1)/bitmap(1)/pad(6) 
+ 00 # SEQUENCE OF=6
+ 06 # 
+ 00 # IE-ID=0x0003 : CN-DomainIndicator                                 [len=5]
+ 03 # 
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ 80 # CN-DomainIndicator(1)=1:ps-domain/pad(7)
+ 00 # IE-ID=0x000f : LAI                                               [len=10]
+ 0f # 
+ 40 # criticality(2)=1:ignore/pad(6)
+ 06 # length
+ 00 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 # 
+ 01 # 
+ 00 # LAC
+ 17 # 
+ 00 # IE-ID=0x0037 : RAC                                            [len=5]
+ 37 # 
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ ff # RAC
+ 00 # IE-ID=0x003a : SAI                                               [len=12]
+ 3a # 
+ 40 # criticality(2)=1:ignore/pad(6)
+ 11 # length
+ 80 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 # 
+ 11 # 
+ 11 # LAC
+ 22 # 
+ 33 # SAC
+ 44 # 
+      # iE-Extensions -------------------------------------
+ 0000 # | SEQUENCE OF 1
+ 00dc # | IE-ID:0x00dc
+ 40   # | 01.. .... criticality
+      # | ..00 0000 
+ 03   # | length = 3
+ 180D04 # (0x3344)
+ 00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+ 10 # 
+ 40 # criticality(2)=1:ignore/pad(6)
+ 2a # length(NAS-PDU)★                                   [nas=31]
+ 29 # length(不定長)
+
+ 08 01 02 e5 40     # GMM
+ 13                 # GMM Attach type/GPRS ciphering key sequence number
+                    #     71:GPRS attach
+                    #     72:GPRS attach with IMSI attached
+                    #     73:Combine attach
+ 08 04              # DRX
+ 08 49 04 02 03 00 00 00 01   # P-TMSI or IMSI
+ 44 f0 01 4c b0 00  # GMM Old RAI
+ 0c 16 b3 43 2a b5 30 60 00 f8 c9 90 00 # MS Radio Access capability
+ 19 00 02           # OLD P-TMSI
+ 83 90               # TMSI status
+
+
+ 00 # IE-ID=0x00d3 : TerminalInformation                            [len=4]
+ d3 # 
+ 40 # criticality(2)=1:ignore/pad(6)
+ 00 # length
+ 00 #■ SEQUENCE OF=0
+ 03 #■■
+ 00 #■ IE-ID=0x004F : IuSigConId                                   [len=7]
+ 4f #■			
+ 40 #■			
+ 03 #■			
+ ff ff ff #■ IuSigConId
+
+ 00FA # IE-ID=0x00FA : Point With UnCertainty                           [len=33]
+ 40 # criticality(2)=1:ignore/pad(6)
+ 09 # length!z
+ 08 # bitmap(1)
+    # GeographicalCoordinates
+    # extension(1)/bitmap(1)
+    # latitudeSign { north(0) or south(1) }
+    # latitude - Length(2)
+    # pad(2)
+ 32 94 79 # latitude{ 8388607 }
+# 7F FF FF # latitude{ 8388607 }
+ 80 # latitude - Length(2)/pad(6)
+ e3 aa 92 # longitude { 8388607 }
+# 7F FF FF # longitude { 8388607 }
+    # GeographicalCoordinates-ExtIEs
+ 20 # UncertaintyCode(7){ 127 }/pad(1)
+
+# ■■ CS-Node-Selector
+ 01 #"# IE-ID=0x0108 : CS Node Selector 
+ 08 #"#
+ 40 #"# Criticality
+ 01 #"# Length
+ 20 #"# CS Node Selector(=1)		■■
+ 
+ 01 #"# IE-ID=0x010f : Subscriber Class ■■■
+ 0f #"#
+ 40 #"# Criticality
+ 01 #"# Length
+ 00 #"# Subscriber Class(00:Normal、80:High) ■■■
+
+ 00 # SCCP:option end
+}
+
+
+pdu DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_1 {
+ # for ATTACH, SERVICE REQUEST, DETACH
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR
+ 00 01
+ 46 # SCCP length ★ 61 = 4 + 57
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+42 # length ★57 = 3 + 23 + 4 + 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+17 # length(NAS-PDU) ★ 23                                 [nas=23]
+16 # length(不定長) ★ 22
+
+ 08 13 00                # GMM
+ 22 AA AA AA AA          # GMM
+ 29 0C AA AA AA AA       # GMM
+ AA AA AA AA AA AA AA AA # GMM
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu DT1-DIRECT_TRANSFER-ATTACH_COMPLETE_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 32 # SCCP length ★ 41 = 4 + 37
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+2e # length ★37 = 3 +  3 + 4 + 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+03 # length(NAS-PDU) ★  3                                 [nas= 3]
+02 # length(不定長) ★ 2
+
+ 08 03                   # GMM : ATTACH_COMPLETE
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu CR-INITIAL_UE_MESSAGE-RA_UPDATE_REQUEST_1 {
+ 01       # SCCP CR
+ CC CC CC # SCCP S-LR(Don't Care)
+ 02 02 04 02 42 8E 04 02 42 8E 0F
+ 6a # SCCP length ★ 88 = 4 + 84
+
+ 00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5)   --- RANAP
+ 13 # procedureCode : InitialUE-Message
+ 40 # criticality(2)=1:ignore/pad(6)
+ 66 # length ★ 84 = 3 + 5 + 10 + 12 + (41+4) + 5 + 4
+ 40 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=6
+ 06 #
+ 00 # IE-ID=0x0003 : CN-DomainIndicator                                 [len=5]
+ 03 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ 80 # CN-DomainIndicator(1)=1:ps-domain/pad(7)
+ 00 # IE-ID=0x000f : LAI                                               [len=10]
+ 0f #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 06 # length
+ 00 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 21 #
+ 00 # LAC
+ 17 #
+ 00 # IE-ID=0x003a : SAI                                               [len=12]
+ 3a #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 11 # length
+ 80 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 21 #
+ 11 # LAC
+ 22 #
+ 33 # SAC
+ 44 #
+ 0000 # | SEQUENCE OF 1
+ 00dc # | IE-ID:0x00dc
+ 40   # | criticality
+ 03   # | length = 3
+ 180D04 # (0x3344)
+ 00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+ 10 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 29 # length(NAS-PDU)★ 41                                [nas=41]
+ 28 # length(不定長) ★ 40
+
+ 08 08                # GMM RA_UPDATE
+ 70                   # GMM Update type
+                      # GMM GPRS ciphering key sequence number(Don't Care)
+ 44 F0 21 0B B9 C8    # GMM Old-RAI
+ 14 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                      # GMM MS Radio Access capability
+ 27 DE 0F             # GMM DRX parameter
+ 18 05 F4 C0 20 00 00 # GMM P-TMSI(Don't Care)
+ 00 # IE-ID=0x0037 : RAC                                            [len=5]
+ 37 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ ff # RAC
+ 00 # IE-ID=0x00d3 : TerminalInformation                            [len=4]
+ d3 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 00 # length
+ 00 #■ SEQUENCE OF=0
+ 00 #■
+ 00 #■ IE-ID=0x004F : IuSigConId
+ 4f #■
+ 40 #■
+ 03 #■
+ ffffff #■ IuSigConId
+ 00 # SCCP:option end
+}
+
+pdu DT1-DIRECT_TRANSFER-RA_UPDATE_COMPLETE_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 32 # SCCP length ★ 41 = 4 + 37
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+2e # length ★37 = 3 + (3 + 4)+ 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+03 # length(NAS-PDU) ★  3                                 [nas= 3]
+02 # length(不定長) ★  2
+
+ 08 0A                         # GMM RA_UPDATE_COMPLETE
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11# LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu CR-INITIAL_UE_MESSAGE-SERVICE_REQUEST_1 {
+ 01       # SCCP CR
+ CC CC CC # SCCP S-LR(Don't Care)
+ 02 02 04 02 42 8E 04 02 42 8E 0F
+ 4b # SCCP length ★ 57 = 4 + 53
+
+ 00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5)   --- RANAP
+ 13 # procedureCode : InitialUE-Message
+ 40 # criticality(2)=1:ignore/pad(6)
+ 47 # length ★ 53 = 3 + 5 + 10 + 12 +(10 + 4)+ 5 + 4
+ 40 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=6
+ 06 #
+ 00 # IE-ID=0x0003 : CN-DomainIndicator                                 [len=5]
+ 03 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ 80 # CN-DomainIndicator(1)=1:ps-domain/pad(7)
+ 00 # IE-ID=0x000f : LAI                                               [len=10]
+ 0f #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 06 # length
+ 00 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 21 #
+ 00 # LAC
+ 17 #
+ 00 # IE-ID=0x0037 : RAC
+ 37 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ ff # RAC
+ 00 # IE-ID=0x003a : SAI                                               [len=12]
+ 3a #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 11 # length
+ 80 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 21 #
+ 11 # LAC
+ 22 #
+ 33 # SAC
+ 44 #
+ 0000 # | SEQUENCE OF 1
+ 00dc # | IE-ID:0x00dc
+ 40   # | criticality
+ 03   # | length = 3
+ 180D04 # (0x3344)
+ 00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+ 10 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 0A # length(NAS-PDU)★                                   [nas=10]
+ 09 # length(不定長) ★ 9
+
+ 08 0C                     # GMM SERVICE_REQUEST
+ 00                        # GMM GPRS ciphering key sequence number(Don't Care)
+                           # GMM Service type
+ 05 F4 C2 E0 00 00         # GMM P-TMSI(Don't Care)
+
+ 00 # IE-ID=0x00d3 : TerminalInformation                            [len=4]
+ d3 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 00 # length
+ 00 #■ SEQUENCE OF=0
+ 00 #■
+ 00 #■ IE-ID=0x004F : IuSigConId
+ 4f #■
+ 40 #■
+ 03 #■
+ ffffff #■ IuSigConId
+ 00 # SCCP : option end
+}
+
+pdu DT1-DIRECT_TRANSFER-ACTIVATE_PDP_CONTEXT_REQUEST_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 87 # SCCP length  119 = 4  + 115
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+80 # length 115 = 3 +(81 + 4)+ 10 + 5 + 12
+82 # length 115 = 3 +(81 + 4)+ 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+57 # length(NAS-PDU)  81                                 [nas=81]
+56 # length(s)  80
+
+ 1A 41                                      # SM ACTIVATE_PDP_CONTEXT_REQUEST
+ 05                                         # SM NSAPI
+ 00                                         # SM LLC_SAPI
+ 0B 22 63 1F 93 97 40 68 76 00 FF FF        # SM QoS
+ 02 01 21                                   # SM PDP address
+#28 0E 07 62 69 67 6C 6F 62 65 02 6E 65 02 6A 70
+ 28 14 06 69 2d 6d 6f 64 65 06 64 6f 63 6f 6d 6f 02 6e 65 02 6a 70
+                                            # SM APN(biglobe.ne.jp)
+ 27 2B 80                                   # SM Protocol configuration options
+ C0 23 14 01 01 00 14 07 69 6D 74 32 30 30 30 07
+ 69 6D 74 32 30 30 30 80 21 10 01 01 00 10 81 06
+ 00 00 00 00 83 06 00 00 00 00
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+c8 # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+
+pdu DT1-DIRECT_TRANSFER-DEACTIVATE_PDP_CONTEXT_REQUEST_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 33 # SCCP length ★ 42 = 4 + 38
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+2f # length ★38 = 3 +( 4 + 4)+ 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+04 # length(NAS-PDU) ★ 4                                  [nas= 4]
+03 # length(不定長) ★ 3
+
+1A 46 24                      # SM DEACTIVATE_PDP_CONTEXT_REQUEST
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+# ■Iu Release Complete
+pdu DT1-IU_RELEASE_COMPLETE_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 18 # SCCP length ★ 24
+
+ 20 # extension(1)/choice(2)=1:SuccessfulOutcome/pad(5)
+ 01 # procedureCode : Iu-Release
+ 40 # criticality(2)=1:ignore/pad(6)
+ 14 # length
+ 00 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=1
+ 01 #
+ 00 # IE-ID=0x002C : RAB-ReleasedList-IuRelComp
+ 2c #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 0d # length
+ 00 # SEQUENCE OF 0x00
+ 00 # SEQUENCE OF 0x0001
+ 01 #
+ 00 # IE-ID=0x0057 : RAB-ReleasedItem-IuRelComp
+ 58 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 06 # length
+ 00 # extension(1)/bitmap(1)/pad(6)
+ 05 # RAB-ID
+ 00 # DL-GTP-PDU-SequenceNumber
+ 00 #
+ 00 # UL-GTP-PDU-SequenceNumber
+ 00 #
+}
+
+# ■RAB Assignment Response（RABs setup）
+pdu DT1-RAB_ASSIGNMENT_RESPONSE_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 1F # SCCP length ★ 31
+
+ 60 # extension(1)/choice(2)=3:Outcome/pad(5)
+ 00 # procedureCode : RAB Assignment
+ 40 # criticality(2)=1:ignore/pad(6)
+ 1B # length = 27byte
+ 00 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=1
+ 01 #
+ 00 # IE-ID=0x0034 : RAB-SetupOrModifiedList
+ 34 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 14 # length
+ 00 # SEQUENCE OF 0x00
+ 00 # SEQUENCE OF 0x0001
+ 01 #
+ 00 # IE-ID=0x0033 : RAB-SetupOrModifiedItem
+ 33 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 0D # length
+ 30 # ChosenUP-Version/TransportLayerAddress/IuTransportAssociation/Ext
+ 04 # RAB-ID
+ 0F # <TransportLayerAddress>extension(1)/length(7-next)
+ 80 # length(1)=00011111(31+1bit=32bit)/pad(7)
+ 0A # TransportLayerAddress(IPADDR)
+ 00 #
+ 01 #
+ 03 #
+ 00 # extension(1)/choice(1)=0:GTP-TEI/pad(6)
+ 12 # GTP-TEI
+ 34 #
+ 56 #
+ 78 #
+}
+
+# ■Security Mode Complete
+pdu DT1-SECURITY_MODE_COMPLETE_1 {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 11 # SCCP length ★ 17
+
+ 20 # extension(1)/choice(2)=1:SuccessfulOutcome/pad(5)
+ 06 # procedureCode : SecurityModeControl
+ 40 # criticality(2)=1:ignore/pad(6)
+ 0D # length
+ 00 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=2
+ 02 #
+ 00 # IE-ID=0x0006 : ChosenIntegrityProtectionAlgorithm
+ 06 #
+ 40 # criticality(2)=0:reject/pad(6)
+ 01 # length
+ 00 # IntegrityProtectionAlgorithm(4)=0:standard-UMTS-integrity-algorithm-UIA1/pad(4)
+ 00 # IE-ID=0x0005 : ChosenEncryptionAlgorithm
+ 05 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ 00 # EncryptionAlgorithm=0:no-encryption/pad(4)
+}
+
+pdu RLC {
+ 05       # SCCP RLC
+ DD DD DD # D-LR(Don't Care)
+ CC CC CC # S-LR(Don't Care)
+}
+
+pdu IT {
+ 10       # SCCP IT
+ DD DD DD # D-LR(Don't Care)
+ CC CC CC # S-LR(Don't Care)
+ 02 00 00 00
+}
+
+pdu CR-INITIAL_UE_MESSAGE-SERVICE_REQUEST_PAGERES {
+ 01       # SCCP CR
+ CC CC CC # SCCP S-LR(Don't Care)
+ 02 02 04 02 42 8E 04 02 42 8E 0F
+ 4b # SCCP length ★ 57 = 4 + 53
+
+ 00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5)   --- RANAP
+ 13 # procedureCode : InitialUE-Message
+ 40 # criticality(2)=1:ignore/pad(6)
+ 47 # length ★ 53 = 3 + 5 + 10 + 12 +(10 + 4)+ 5 + 4
+ 40 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=6
+ 06 #
+ 00 # IE-ID=0x0003 : CN-DomainIndicator                                 [len=5]
+ 03 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ 80 # CN-DomainIndicator(1)=1:ps-domain/pad(7)
+ 00 # IE-ID=0x000f : LAI                                               [len=10]
+ 0f #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 06 # length
+ 00 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 21 #
+ 00 # LAC
+ 17 #
+ 00 # IE-ID=0x003a : SAI                                               [len=12]
+ 3a #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 11 # length
+ 80 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 21 #
+ 11 # LAC
+ 22 #
+ 33 # SAC
+ 44 #
+ 0000 # | SEQUENCE OF 1
+ 00dc # | IE-ID:0x00dc
+ 40   # | criticality
+ 03   # | length = 3
+ 180D04 # (0x3344)
+ 00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+ 10 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 0A # length(NAS-PDU)★                                   [nas=10]
+ 09 # length(不定長) ★ 9
+
+ 08 0C                     # GMM SERVICE_REQUEST
+ 27                        # GMM GPRS ciphering key sequence number(Don't Care)
+                           # GMM Service type
+ 05 F4 C0 30 00 00         # GMM P-TMSI(Don't Care)
+
+ 00 # IE-ID=0x0037 : RAC                                            [len=5]
+ 37 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ ff # RAC
+ 00 # IE-ID=0x00d3 : TerminalInformation                            [len=4]
+ d3 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 00 # length
+ 00 #■ SEQUENCE OF=0
+ 00 #■
+ 00 #■ IE-ID=0x004F : IuSigConId
+ 4f #■
+ 40 #■
+ 03 #■
+ ffffff #■ IuSigConId
+ 00 # SCCP : option end
+}
+
+pdu DT1-DIRECT_TRANSFER-REQUEST_PDP_CONTEXT_ACTIVATION {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 87 # length
+#7D # SCCP length  119 = 4  + 115
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+80
+82 # length 115 = 3 +(81 + 4)+ 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+4f # length
+4e # length
+#57 # length(NAS-PDU)  81                                 [nas=81]
+#56 # length(s)  80
+
+ 8A 41                                      # SM ACTIVATE_PDP_CONTEXT_REQUEST
+ 05                                         # SM NSAPI
+ 00                                         # SM LLC_SAPI
+ 0B 22 63 1F 93 97 40 68 76 00 FF FF        # SM QoS
+ 02 01 21                                   # SM PDP address
+#28 0E 07 62 69 67 6C 6F 62 65 02 6E 65 02 6A 70
+ 28 0c 02 78 31 05 78 77 61 76 65 02 6a 70  # SM APN(x1.xwave.jp)
+#28 14 06 69 2d 6d 6f 64 65 06 64 6f 63 6f 6d 6f 02 6e 65 02 6a 70
+                                            # SM APN(biglobe.ne.jp)
+ 27 2B 80                                   # SM Protocol configuration options
+ C0 23 14 01 01 00 14 07 69 6D 74 32 30 30 30 07
+ 69 6D 74 32 30 30 30 80 21 10 01 01 00 10 81 06
+ 00 00 00 00 83 06 00 00 00 00
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+# P-TMSI Reallocation Complete -----------------------------------------------#
+pdu DT1-DIRECT_TRANSFER-PTMSI_REALLOCATION_COMPLETE {
+06      #SCCP DT1
+dddddd  #SCCP Destination local reference
+00      #SCCP Segmenting/reassembling
+0132    #SCCP Data
+0014402e000004  #RANAP DIRECT_TRANSFER
+0010400302      #RANAP NAS-PDU
+0811    #GMM PTMSI_REALLOCATION_COMPLETE
+000f40060044f0210017    #RANAP LAI
+00374001ff      #RANAP RAC
+003a40118044f02111223344        #RANAP SAI
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+
+pdu DT1-DIRECT_TRANSFER-IDENTITY_RESPONSE_IMSI {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 3b # SCCP length ★ 50 = 11 + 39
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+2e # length ★37 = 3 +  3 + 4 + 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+0c # length(NAS-PDU) ★  3                                 [nas= 3]
+0b # length(不定長) ★ 2
+
+ 08 16                   # GMM : IDENTITY_RESPONSE
+#08 49 04 02 03 00 00 00 10   # IMSI:440203000000010
+ 08 49 04 01 43 04 40 30 40   # IMSI:440103440040304
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_IMEISV {
+ # for ATTACH, SERVICE REQUEST, DETACH
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR
+ 00 01
+ 51 # SCCP length ★ 61 = 4 + 57
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+4d # length ★57 = 3 + 23 + 4 + 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+22 # length(NAS-PDU) ★ 23                                 [nas=23]
+21 # length(不定長) ★ 22
+
+ 08 13 00                # GMM
+ 22 AA AA AA AA          # GMM
+ 23 09 13 32 54 76 98 10 32 54 f6  # IMEISV:1234567890123456
+ #23 09 13 32 54 76 98 10 32 04 f0  # IMEISV:1234567890123456
+ 29 0C AA AA AA AA       # GMM
+ AA AA AA AA AA AA AA AA # GMM
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu DT1-DIRECT_TRANSFER-AUTHENTICATION_AND_CIPHERING_RESPONSE_IMEISV_00 {
+ # for ATTACH, SERVICE REQUEST, DETACH
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR
+ 00 01
+ 51 # SCCP length ★ 61 = 4 + 57
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+4d # length ★57 = 3 + 23 + 4 + 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+22 # length(NAS-PDU) ★ 23                                 [nas=23]
+21 # length(不定長) ★ 22
+
+ 08 13 00                # GMM
+ 22 AA AA AA AA          # GMM
+ 23 09 13 32 54 76 98 10 32 04 f0  # IMEISV:1234567890123400
+ 29 0C AA AA AA AA       # GMM
+ AA AA AA AA AA AA AA AA # GMM
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu DT1-DIRECT_TRANSFER-IDENTITY_RESPONSE_IMEISV {
+ 06       # SCCP DT1
+ DD DD DD # SCCP D-LR(Don't Care)
+ 00 01
+ 3c # SCCP length ★ 50 = 11 + 39
+
+00 # extension(1)/choice(2)=0:InitiatingMessage/pad(5) -- RANAP
+14 # procedureCode : DirectTransfer
+40 # criticality(2)=1:ignore/pad(6)
+2f # length ★37 = 3 +  3 + 4 + 10 + 5 + 12
+00 # extension(1)/bitmap(1)/pad(6)
+00 # SEQUENCE OF=4
+04 #
+00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+10 #
+40 # criticality(2)=1:ignore/pad(6)
+0d # length(NAS-PDU) ★  3                                 [nas= 3]
+0c # length(不定長) ★ 2
+
+ 08 16                   # GMM : IDENTITY_RESPONSE
+# 09 13 32 54 76 98 10 32 54 f6  # IMEISV:1234567890123456
+09 13 32 54 76 98 10 32 04 f0
+# 09 13 32 54 76 98 1f 32 54 f6  # IMEISV:1234567890123456
+
+00 # IE-ID=0x000f : LAI                                            [len=10]
+0f #
+40 # criticality(2)=1:ignore/pad(6)
+06 # length
+00 # bitmap(1)/pad(7)
+44 # PLMN-ID
+f0 #
+21 #
+00 # LAC
+17 #
+00 # IE-ID=0x0037 : RAC                                             [len=5]
+37 #
+40 # criticality(2)=1:ignore/pad(6)
+01 # length
+ff # RAC
+00 # IE-ID=0x003a : SAI                                             [len=12]
+3a #
+40 # criticality(2)=1:ignore/pad(6)
+11 # length
+80 # bitmap(1)/pad(7)
+44 #
+f0 #
+21 #
+11 # LAC
+22 #
+33 # SAC
+44 #
+0000 # | SEQUENCE OF 1
+00dc # | IE-ID:0x00dc
+40   # | criticality
+03   # | length = 3
+180D04 # (0x3344)
+}
+
+pdu CR-INITIAL_UE_MESSAGE-DETACH_REQUEST_2 {
+
+ 01       # SCCP CR
+ DD DD DD # SCCP D-LR(Don't Care)
+ 02 02 04 02 42 8E 04 02 42 8E 0F
+# 51 # SCCP length !z 67 = 4 + 63
+ 5e # SCCP length !z 67 = 4 + 63
+ 00 # extension(1)/bitmap(1)/pad(6)   --- RANAP
+ 13 # procedureCode : InitialUE-Message
+ 40 # criticality(2)=1:ignore/pad(6)
+# 4d # length !z 63 = 3 + 5 + 10 + 12 +(11 + 4)+ 5 + 4
+ 5a # length !z 63 = 3 + 5 + 10 + 12 +(11 + 4)+ 5 + 4
+ 40 # extension(1)/bitmap(1)/pad(6)
+ 00 # SEQUENCE OF=6
+ 06 #
+ 00 # IE-ID=0x0003 : CN-DomainIndicator                                 [len=5]
+ 03 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ 80 # CN-DomainIndicator(1)=1:ps-domain/pad(7)
+ 00 # IE-ID=0x000f : LAI                                               [len=10]
+ 0f #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 06 # length
+ 00 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 01 #
+ 00 # LAC
+ 17 #
+ 00 # IE-ID=0x0037 : RAC                                            [len=5]
+ 37 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 01 # length
+ ff # RAC
+ 00 # IE-ID=0x003a : SAI                                               [len=12]
+3a #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 11 # length
+ 80 # bitmap(1)/pad(7)
+ 44 # PLMN-ID
+ f0 #
+ 01 #
+ 11 # LAC
+ 22 #
+ 33 # SAC
+ 44 #
+      # iE-Extensions -------------------------------------
+ 0000 # | SEQUENCE OF 1
+ 00dc # | IE-ID:0x00dc
+ 40   # | 01.. .... criticality
+      # | ..00 0000
+ 03   # | length = 3
+ 180D04 # (0x3344)
+ 00 # IE-ID=0x0010 : NAS-PDU                                        [len=nas+4]
+ 10 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 10 # length(NAS-PDU)!z                                   [nas=11]
+ 0f # length(ITDjD9) !z 10
+
+ 08 05 03                            # GMM DETACH_REQUEST
+ 18 05 F4 D0 30 00 00                # GMM P-TMSI(Don't Care)
+ 19 03 00 00 00
+
+ 00 # IE-ID=0x00d3 : TerminalInformation                            [len=4]
+ d3 #
+ 40 # criticality(2)=1:ignore/pad(6)
+ 00 # length
+ 00 #"# SEQUENCE OF=0
+ 01 #"#
+ 00 #"# IE-ID=0x004F : IuSigConId
+ 4f #"#
+ 40 #"#
+ 03 #"#
+ ff ff ff #"# IuSigConId
+
+ 00FA # IE-ID=0x00FA : Point With UnCertainty
+ 40 # criticality(2)=1:ignore/pad(6)
+ 09 # length
+ 08 # bitmap(1bit)
+    # extension(1bit)
+    # bitmap(1bit)
+    # latitudeSign(1bit) { north(0) or south(1) }
+    # latitude - Length(2bit)
+    # pad(2bit)
+ 32 94 79 # latitude{ 8388607 }
+ 80 # latitude - Length(2bit)
+    # pad(6bit)
+ E3 AA 92 # longitude { 8388607 }
+ 20 # UncertaintyCode(7bit){ 127 }/pad(1bit)
+
+ 00 # SCCP : option end
+
+
+}
+
+

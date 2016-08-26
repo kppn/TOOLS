@@ -1,0 +1,21 @@
+
+freeradius軽量化コンフィグ
+
+usage
+    コンフィグを以下に配置(置き換え)
+      radiusd.conf
+          /etc/raddb/
+      site-available/default
+          /etc/raddb/site-available/
+
+     デフォルトのコンフィグでは数十万BHCAで応答の遅延が
+     発生し始めるが、軽量化コンフィグで数百万BHCAまで
+     実施可能となる。
+
+軽量化コンフィグの主要点
+  ・Accountingログの出力なし
+  ・最初・最大スレッド数を伸張
+  ・Reject時のガードタイマを最小値
+  ・再送待ち保留タイマを最小値
+  ・使用しないモジュールの読み込み対象外
+

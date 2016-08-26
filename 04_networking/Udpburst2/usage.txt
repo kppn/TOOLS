@@ -1,0 +1,36 @@
+
+udpburst2  - NWのバースト送信をシミュレーションする -
+
+
+server 
+	./udpburst2_server 172.16.1.1:10001 192.168.1.2:10002
+
+client
+	./udpburst2_client 192.168.1.2:10000 172.16.1.1:10001 192.168.1.2:10002 10 5000
+		
+		(*) send packet ten times, 5ms
+
+
+     +----------+                                          +-------------+
+     | client   |                                          |  server     |
+     |          | 192.168.1.2:10000                        |             |
+     | sender   |----------------------+                   |             |
+     | thread   |                      |  172.16.1.1:10001 |             |
+     |          |                      +------------------>|  server     |
+     |          |                      +-------------------|  process    |
+     | receiver | 192.168.1.2:10002    |                   |             |
+     | thread   |<---------------------+                   |             |
+     |          |                                          |             |
+     +----------+                                          +-------------+
+
+     client sender thread
+         *send UDP packet with 
+             * 4octet counter per packet, followed
+             * struct timeval
+     client receiver thread
+         * message if counters in packets has gap. 
+         * message if RTT over 1000ms.
+     server process
+         * message if counters in packets has gap. 
+         * simply echo client message
+

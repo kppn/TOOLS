@@ -1,0 +1,21 @@
+/*********************************************************************/
+/*                                                                   */
+/*  GUT  (GTP U-Plane packet Transferer)                             */
+/*                                                                   */
+/*    copyright T.Kondoh                                             */
+/*                                                                   */
+/*********************************************************************/
+
+3/14 v0.1
+	* First Release
+
+3/16 v0.2
+	* gut_set.shによるgut.confの自動設定対応
+
+3/17 v0.21
+	* GTP Echo Responseに、RequestのSequence Numberを載せる対応
+	* G-PDUのHeaderをSequence Numberなしに変更
+
+3/19 v0.22
+	* gutからgut_set.shの呼び出しを廃止. gut_set.shからgut呼び出しへ
+

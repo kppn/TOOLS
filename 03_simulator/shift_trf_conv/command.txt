@@ -1,0 +1,20 @@
+
+1. xxx.log(csimMON trf) to this directory
+
+2. execute following command
+
+	echo 'Create CSV file'
+	for i in *.log ; do
+		echo -------------- $i;
+		./shift_trf.pl $i;
+	done
+
+	echo 'convert charactor encoding. euc to sjis'
+
+	for i in *.csv ; do
+		echo -------------- $i;
+		cat $i | nkf -s -Lw > /tmp/$i;
+	done
+	mv /tmp/*.csv .
+	
+

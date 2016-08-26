@@ -1,0 +1,69 @@
+
+stc3  - 秒間の特定の信号数を計測 -
+
+
+setup
+    'make' with Makefile, or
+    'gcc -lpthread -lpcap -o stc2 stc2.c'
+
+        ※あなたのマシンにlibpcap-develが無ければ先に入れて。
+
+
+usage
+    ./stc3 (interface_name) [expressions]
+
+
+example
+    ・expressions にはtcpdumpと同じ形式が使える
+      詳しくは man tcpdump。
+    
+        ・telnetのパケットだけ
+             ./stc3 eth0 tcp port 23
+    
+        ・GTPv1 Create PDP Context Requestのパケットだけ
+             ./stc3 eth0 'udp[8:2]=0x3210'
+              
+                  ※ 8:2はoffset:size。8はudpヘッダー分。
+                     つまりUDPペイロードの先頭から2octを指定している。
+
+    ・実行時の表示例
+		expression : ip dst 172.119.105.161 and tcp port 21
+		2015/01/07 19:39:17.856544 :       4788,           361024
+		2015/01/07 19:39:18.856807 :       4948,           373028
+		2015/01/07 19:39:19.857056 :       4952,           373364
+		2015/01/07 19:39:20.857177 :       4912,           370310
+		2015/01/07 19:39:21.857426 :       4951,           373298
+		2015/01/07 19:39:22.857544 :       4939,           372362
+		2015/01/07 19:39:23.857664 :       4922,           371096
+		2015/01/07 19:39:24.857792 :       4947,           372962
+
+
+caution
+    ・'秒'はusleep(999999)で実施。
+      誤差の調整機能は無い。当然ながら誤差はOSやマシン性能に依存する。
+      
+    ・周期を変えたければ以下を書き換えて再コンパイル。
+		useconds_t sleeptime = 999999;	/* micro seconds */
+
+    ・パケット導通量が多い中、バッファが小さいと、KernelでDropされ、
+      ツールの計上から漏れる。
+      バッファ量を変えたければ以下を書き換えて再コンパイル。
+		int buffer_size = 134217728;    /* byte */
+
+      止めた時に以下が計上されていたらKernelドロップあり (意味はtcpdumpと同じ)。
+            0 packet dropped by interface
+            0 packet dropped by kernel
+
+
+
+other
+	前バージョンとの違い
+		stc
+			信号受信毎に1秒経っているか判断。
+		stc2
+			マルチスレッドで周期出力。
+		stc3
+			バイト量の出力を追加
+			pcapバッファを変更出来る処理を追加
+
+

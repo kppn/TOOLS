@@ -1,0 +1,10 @@
+# default: on
+service tcpproxy
+{
+	socket_type	= stream        
+	wait		= no
+	user		= root
+	server		= /usr/local/bin/tcpproxyd
+	disable		= no
+}
+

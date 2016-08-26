@@ -1,0 +1,56 @@
+#!/usr/bin/perl
+
+use IO::Handle;
+
+$SIG{'INT'}  = sub { close(STDIN); close(STDOUT); exit(1); };
+$SIG{'KILL'} = sub { close(STDIN); close(STDOUT); exit(1); };
+$SIG{'PIPE'} = sub { close(STDIN); close(STDOUT); exit(1); };
+
+
+local $| = 1;
+
+$message = 'SYSINF.I SUMMARY\CBC Call Simulator\1.09.100000 11 - 2013/04/23' . "\n";
+print $message;
+$message = 'APPROV.I' . "\n";
+print $message;
+
+
+while (1) {
+	$command = <STDIN>;
+	$command =~ s/\r\n/\n/;
+	
+	if ($command =~ /^GET_SYSINF.R/) {
+		$message = 'GET_SYSINF.C SUMMARY\CBC Call Simulator\1.09.100000.11 - 2013/04/23' . "\n";
+		print $message;
+	}
+	elsif ($command =~ /^ISCPORT.R/) {
+		$message = 'ISCPORT.C 192.168.200.6\34546' . "\n";
+		print $message;
+	}
+	elsif ($command =~ /^CREATE_LINK_EX.R/) {
+		$command =~ / (cbc.*[0-9])/;
+		$message = 'CREATE_LINK_EX.C cbc001\TCP\\' . $1 . "\n";
+		print $message;
+	}
+	elsif ($command =~ /^SET_LINK_OPT_EX.R/) {
+		$message = 'REG_NOTIF_SUPPRESS.C OFF' . "\n";
+		print $message;
+
+		$message = 'SET_LINK_OPT_EX.C cbc001\KEEP_ALIVE\OFF' . "\n";
+		print $message;
+	}
+	elsif ($command =~ /^MSRINF.R/) {
+		$message = 'MSRINF.C NODE\ALL\20130902_115742354\8241\OUTOFSERVICE\0\0\0\00000000\00000000\0000000000000000\0000000000000000\1\C-U_Association\0\0' . "\n";
+		print $message;
+	}
+	elsif ($command =~ /^([A-Z_]+)\.R/) {
+		# Ignore
+		$message = $1 . '.E 04' . "\n";
+		print $message;
+	}
+	else {
+		@reply = `$command`;
+		print $message;
+	}
+}
+

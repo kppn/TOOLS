@@ -1,0 +1,50 @@
+
+stc2  - 秒間の特定の信号数を計測 -
+
+
+setup
+    'make' with Makefile, or
+    'gcc -lpthread -lpcap -o stc2 stc2.c'
+
+        ※あなたのマシンにlibpcap-develが無ければ先に入れて。
+
+
+usage
+    ./stc2 (interface_name) [expressions]
+
+
+example
+    ・expressions にはtcpdumpと同じ形式が使える
+      詳しくは man tcpdump。
+    
+        ・telnetのパケットだけ
+             ./stc2 eth0 tcp port 23
+    
+        ・GTPv1 Create PDP Context Requestのパケットだけ
+             ./stc2 eth0 'udp[8:2]=0x3210'
+              
+                  ※ 8:2はoffset:size。8はudpヘッダー分。
+                     つまりUDPペイロードの先頭から2octを指定している。
+
+    ・実行時の表示例
+        2013/10/29 14:22:03.012222 :      5
+        2013/10/29 14:22:04.013139 :     12
+        2013/10/29 14:22:05.015428 :      8
+
+
+caution
+    ・'秒'はusleep(999999)で実施。
+      誤差の調整機能は無い。当然ながら誤差はOSやマシン性能に依存する。
+      
+    ・周期を変えたければ以下を書き換えて再コンパイル。
+		useconds_t sleeptime = 999999;	/* micro seconds */
+
+
+other
+	前バージョンとの違い
+		stc
+			信号受信毎に1秒経っているか判断。
+		stc2
+			マルチスレッドで周期出力。
+
+

@@ -1,0 +1,12 @@
+
+cmdcut  - msglogの各コマンド部を切り分けてファイルに -
+
+
+usage
+	cat msgYYMMDD.log | ./cmdcut.pl
+
+
+caution
+	切り分けたファイルはカレントディレクトリにできる。
+
+

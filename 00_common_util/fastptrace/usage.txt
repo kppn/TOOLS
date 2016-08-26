@@ -1,0 +1,17 @@
+
+fastptrace  - プロセスのメモリを表示する -
+
+
+usage
+	fastptrace pid addr byte
+        
+        e.g.
+            ./fastptrace 4091 0x00123481 30
+
+
+other
+	view_mmの連続実行が遅すぎて使えない場合に有用。
+	原理はview_mmやデバッガと同じ。対象のプロセスに多少は
+	影響があるかもしれない。
+
+

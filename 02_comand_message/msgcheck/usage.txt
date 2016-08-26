@@ -1,0 +1,15 @@
+
+msgcheck.pl  - msglogのメッセージを一覧・統計する -
+
+
+usage
+	cat msgYYMMDD.log | ./msgcheck.pl
+	
+	ex
+		全部
+			cat msgYYMMDD.log | ./msgcheck
+		
+		13:35分以降だけ
+			cat msgYYMMDD.log | ./msgcheck 1335
+
+

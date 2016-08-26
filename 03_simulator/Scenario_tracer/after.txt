@@ -1,0 +1,48 @@
+#----------------------------------
+# ÉcÅ[Éãä|ÇØÇΩå„
+#----------------------------------
+
+
+set
+{
+    ....
+    
+    control print_trace = 0;
+    private sce_trc_event = 0x00000000;
+    
+    transit_execute(HOGE);
+}
+
+
+in HOGE
+{
+    case execution {
+        multiply\(sce_trc_event, 0x100, sce_trc_event\); increase\(sce_trc_event, 0x01);
+        ...
+        if (a) {
+            multiply\(sce_trc_event, 0x100, sce_trc_event\); increase\(sce_trc_event, 0x02);
+            ...
+        }
+        else {
+            multiply\(sce_trc_event, 0x100, sce_trc_event\); increase\(sce_trc_event, 0x03);
+            ...
+        }
+    }
+    case receive(AAA) {
+        multiply\(sce_trc_event, 0x100, sce_trc_event\); increase\(sce_trc_event, 0x04);
+        ...
+    }
+}
+
+
+in ANY_STATE {
+    case control(print_trace, 1) {
+        snap("trace", sce_trc_event);
+    }
+}
+
+
+pdu ......
+
+
+

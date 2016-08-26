@@ -1,0 +1,11 @@
+ADD REQUEST
+EBI                    = 5
+GTP-U_OWN_TEID         = 00000001
+GTP-U_DST_IP           = 193.0.67.129
+GTP-U_DST_TEID         = 00000001
+EUIPV4                 = 55.1.0.1
+EUIPV6                 = 3ffe:0:1001::1/128
+SERVER_NW_V4           = 10.0.130.130/32
+SERVER_NW_V6           = 3ffe:100:100::130/128
+.
+

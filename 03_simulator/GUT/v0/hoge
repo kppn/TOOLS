@@ -1,0 +1,3 @@
+int encap_gtp_header(uchar * buf, ssize_t packsize, uint8_t msg_type, 
+			 uint32_t teid, uint32_t flags)
+{

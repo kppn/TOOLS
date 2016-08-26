@@ -1,0 +1,32 @@
+
+./stc eth2.14 '( '                                 \ 
+                  'ip[32:1] = 0x00           and ' \
+                  'ip[44:4] = 0x00000003     and ' \
+                  'ip[50:2] = 0x0101             ' \
+              ')'                                  \
+              or                                   \
+              '('                                  \
+                  'ip[32:1] = 0x03           and ' \
+                  'ip[48:1] = 0x00           and ' \
+                  'ip[60:4] = 0x00000003     and ' \
+                  'ip[66:2] = 0x0101             ' \
+              ')'
+
+# SCTP DATA Chunk (non Bundled any other )
+#
+# ip[32:1] = 0x00		as SCTP chunk type: DATA(0)
+# ip[44:4] = 0x00000003 	as SCTP DATA chunk payload protocol: M3UA(3)
+# ip[50:2] = 0x0101		as M3UA message class:transfer message(1), and 
+#				   M3UA message type: payload data(1)
+# 
+# SCTP SACK Chunk & DATA Chunk (Bundled)
+# 
+# ip[32:1] = 0x03		as SCTP chunk type: SACK(3)
+# ip[48:1] = 0x00		as SCTP chunk type: DATA(0)
+# ip[60:4] = 0x00000003		as SCTP DATA chunk payload protocol: M3UA(3)
+# ip[66:2] = 0x0101		as M3UA message class:transfer message(1), and
+#				   M3UA message type: payload data(1)
+
+
+
+

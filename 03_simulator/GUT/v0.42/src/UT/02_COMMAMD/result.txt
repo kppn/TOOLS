@@ -1,0 +1,1181 @@
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+
+==================================
+LOOP 0
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 1
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 2
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 3
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 4
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 5
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 6
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 6 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 7
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 6 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 7 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 8
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 6 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 7 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 8 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 9
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 6 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 7 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 8 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 9 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 10
+==================================
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 6 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 7 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 8 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 9 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 10 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+
+==================================
+LOOP 11
+==================================
+session full
+
+============== Current Environment =============== 
+max_tunnel_device    : 11
+command_sfd          : 3
+command_ip           : '172.30.32.153'
+command_port         : 50000
+udpfd                : 4
+own_gtpu_addr        : '172.30.32.153'
+gtpu_port            : 2152
+
+        --------- Current Session 0 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 1 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 2 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 3 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 4 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 5 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 6 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 7 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 8 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 9 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+        --------- Current Session 10 -----------
+        tunfd                : 1
+        tun_dev              : hoge
+        own_gtpu_teid        : 00400003
+        dst_gtpu_addr        : '172.30.223.90'
+        dst_gtpu_teid        : 0c400003
+        user_addr4           : '192.168.0.1/32'
+        dst_route4           : '192.168.210.235/32'
+        user_addr6           : 'fe80::4410:1045:0004:0304/64'
+        dst_route6           : '2001:0001::1/128'
+        trans_bytes          :           0
+        receive_bytes        :           0
+
+

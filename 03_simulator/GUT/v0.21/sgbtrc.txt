@@ -1,0 +1,46 @@
+  # search number #
+    ## basic information ##
+      msisdn=818013600200   
+      imsi=440103113600200
+      pdn_cnt=1
+      bearer_cnt=1
+    ## pdn information (1 ) ##
+      gwp00
+      lgwu000
+      apnni=mopera.ne.jp
+      apnoi=mnc010.mcc440.gprs
+      ### apn_ambr ###
+        ambr_for_uplink=fffffc00
+        ambr_for_downlink=fffffc00
+      pdn_type=ipv4v6
+      ipadr_v4_pdn=192.168.224.133
+      ipadr_v6_pdn=2001:47:0:1c:4410:3011:6300:200
+      pdn_bearer_cnt=1
+      ### S-GW information ###
+        ipadr_own_c=172.31.126.100
+        ipadr_own_u_s1_s4=172.30.63.36
+        ipadr_own_u_s5=172.30.191.36
+        teid_c=00000043
+        gre_key_s5=00000043
+      ### P-GW information ###
+        pgw_base=pmip
+        ipadr_pgw_c=172.30.190.36
+        ipadr_pgw_u=172.30.190.36
+        gre_key=80000093
+      ### MME information ###
+        ipadr_mme=192.168.217.69
+        teid_mme=0000000a
+        #### bearer information ####
+          eps_bearer_id=5
+          ipadr_enb_u=192.168.216.69
+          teid_enb_u=00050002
+          teid_u_s1_s4=02000043
+          ##### bearer_qos #####
+            allocation_retention_pri=3d
+            qci=09
+            mbr_for_uplink=00fffffc00
+            mbr_for_downlink=00fffffc00
+            gbr_for_uplink=0000000000
+            gbr_for_downlink=0000000000
+
+2010/03/17 13:10:17 str_sgbtrc end

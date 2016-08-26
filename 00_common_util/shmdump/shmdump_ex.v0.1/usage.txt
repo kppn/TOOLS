@@ -1,0 +1,12 @@
+
+shmdump_ex  - 共有メモリを出力する -
+
+
+usage
+	do
+		./shmdump_ex -h
+
+
+other
+	MW提供のshmdumpが余りに低機能なので作った。
+

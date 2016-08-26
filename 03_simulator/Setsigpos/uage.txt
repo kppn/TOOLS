@@ -1,0 +1,23 @@
+
+setsigpos.pl  - setsigdataの位置を勝手に計算し挿入する -
+
+
+usage
+	setsigpos.pl (filename)
+
+
+description
+	SHIFTシナリオの信号部の長さを変えたときにsetsigdataの
+	オフセット位置を修正するのが面倒。
+	シナリオに以下のように記載しておき勝手に計算させる。
+	
+	pdu CREATE_SESSION_REQUEST_YMODE {
+		・
+		・
+		49 0001 00
+			05 		#[POS_BCTXT_EBI]
+		・
+		・
+
+
+

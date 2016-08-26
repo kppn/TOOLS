@@ -1,0 +1,3 @@
+
+do
+	./cpu_corerate.pl

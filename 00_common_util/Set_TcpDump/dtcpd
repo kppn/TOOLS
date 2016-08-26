@@ -1,0 +1,106 @@
+# MME-SGW
+alias mtd_s11='tcpdump -i eth0.1916 udp and port 2123 and host 172.31.127.36 -s 0 -p -l'
+alias etd_s11='echo "tcpdump -i eth0.1916 udp and port 2123 and host 172.31.127.36 -s 0 -p -l"'
+function dtd_s11(){
+tcpdump -i eth0.1916 udp and port 2123 and host 172.31.127.36 -s 0 -p -l -w $1_$2_GWP000_S11.pcap
+}
+
+# PGW-PCRF
+alias mtd_gx0='tcpdump -i eth0.2132 -s 0 -p -l'
+alias etd_gx0='echo "tcpdump -i eth0.2132 -s 0 -p -l"'
+function dtd_gx0(){
+tcpdump -i eth0.2132 -s 0 -p -l -w $1_$2_GWP000_Gx0.pcap
+}
+
+# SGW-PCRF
+alias mtd_gxc0='tcpdump -i eth0.2134 -s 0 -p -l'
+alias etd_gxc0='echo "tcpdump -i eth0.2134 -s 0 -p -l"'
+function dtd_gxc0(){
+tcpdump -i eth0.2134 -s 0 -p -l -w $1_$2_GWP000_Gxc0.pcap
+}
+
+
+# PGW-RADIUS
+#alias mtd_sgi2m='tcpdump -i ethgrp6 -s 0 -p -l'
+#alias etd_sgi2m='echo "tcpdump -i ethgrp6 -s 0 -p -l"'
+alias mtd_sgi2m='tcpdump -i ethgrp6 udp port 32247 or port 32248 or port 3799 -s 0 -p -l'
+alias etd_sgi2m='tcpdump -i ethgrp6 udp port 32247 or port 32248 or port 3799 -s 0 -p -l'
+function dtd_sgi2m(){
+tcpdump -i ethgrp6 udp port 32247 or port 32248 or port 3799 -s 0 -p -l -w $1_$2_GWU00_SGi2.pcap
+}
+
+# PGW-RADIUS
+#alias mtd_sgi2='tcpdump -i ethgrp6 -s 0 -p -l'
+#alias etd_sgi2='echo "tcpdump -i ethgrp6 -s 0 -p -l"'
+alias mtd_sgi2d='tcpdump -i ethgrp6 udp port 32659 or port 32660 or port 3799 -s 0 -p -l'
+alias etd_sgi2d='tcpdump -i ethgrp6 udp port 32659 or port 32660 or port 3799 -s 0 -p -l'
+function dtd_sgi2d(){
+tcpdump -i ethgrp6 udp port 32659 or port 32660 or port 3799 -s 0 -p -l -w $1_$2_GWU00_SGi2.pcap
+}
+
+#FTP
+function ftpdtd_s11(){
+ftp -n 192.168.1.10 << _EOF_  
+user root pelican
+bin
+mkdir /home/espgw/D-team/MAPS_jizen/$1
+mkdir /home/espgw/D-team/MAPS_jizen/$1/LOG
+cd /home/espgw/D-team/MAPS_jizen/$1/LOG
+put $1_$2_GWP000_S11.pcap 
+
+bye
+_EOF_
+
+}
+function ftpdtd_gx0(){
+ftp -n 192.168.1.10 << _EOF_  
+user root pelican
+bin
+mkdir /home/espgw/D-team/MAPS_jizen/$1
+mkdir /home/espgw/D-team/MAPS_jizen/$1/LOG
+cd /home/espgw/D-team/MAPS_jizen/$1/LOG
+put $1_$2_GWP000_Gx0.pcap
+
+bye
+_EOF_
+
+}
+function ftpdtd_gxc0(){
+ftp -n 192.168.1.10 << _EOF_  
+user root pelican
+bin
+mkdir /home/espgw/D-team/MAPS_jizen/$1
+mkdir /home/espgw/D-team/MAPS_jizen/$1/LOG
+cd /home/espgw/D-team/MAPS_jizen/$1/LOG
+put $1_$2_GWP000_Gxc0.pcap
+
+bye
+_EOF_
+
+}
+function ftpdtd_sgi2m(){
+ftp -n 192.168.1.10 << _EOF_  
+user root pelican
+bin
+mkdir /home/espgw/D-team/MAPS_jizen/$1
+mkdir /home/espgw/D-team/MAPS_jizen/$1/LOG
+cd /home/espgw/D-team/MAPS_jizen/$1/LOG
+put $1_$2_GWU00_SGi2.pcap
+
+bye
+_EOF_
+
+}
+function ftpdtd_sgi2d(){
+ftp -n 192.168.1.10 << _EOF_  
+user root pelican
+bin
+mkdir /home/espgw/D-team/MAPS_jizen/$1
+mkdir /home/espgw/D-team/MAPS_jizen/$1/LOG
+cd /home/espgw/D-team/MAPS_jizen/$1/LOG
+put $1_$2_GWU00_SGi2.pcap
+
+bye
+_EOF_
+
+}

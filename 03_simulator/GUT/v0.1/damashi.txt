@@ -1,0 +1,12 @@
+
+ifconfig eth1:1 10.0.0.1/24
+route add -host 192.168.1.10 gw 10.0.0.254
+arp -s 10.0.0.254 00:24:1D:2E:1E:D7
+
+arp -d 10.0.0.254
+route del -host 192.168.1.10
+ifconfig eth1:1 down
+
+
+
+

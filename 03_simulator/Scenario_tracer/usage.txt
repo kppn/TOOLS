@@ -1,0 +1,14 @@
+
+
+usage
+	cat rnc.scs | sce_trc.pl > rnc_with_trace.scs
+
+
+description
+	SHIFTで負荷中、どの加入者で何が起きたか判らない事が多々。
+	元のシナリオに以下の改変を施す。
+		・状態遷移にマーク値を埋め込む
+		・private変数を8ビットシフトしながらマーク値を足す
+		・control print_traceを埋め込む。この変数でイベントを起こすと
+		  全加入者分のpriavte変数をsnapで出す。
+

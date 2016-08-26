@@ -1,0 +1,352 @@
+GTP-Uツール使用方法    for GUTv0.40
+
+
+★以下のオペはrootアカウントで★
+
+
+
+#======================================================================
+#
+#                           環境構築
+#
+#======================================================================
+
+■ インストール ========================================================
+
+
+○GUT起動マシン側
+
+    # 以下のコマンドを実行
+    mkdir /dev/net
+    mknod /dev/net/tun c 10 200
+    mknod /dev/net/tun0 c 10 200
+    mknod /dev/net/tun1 c 10 200
+    mknod /dev/net/tun2 c 10 200
+    mknod /dev/net/tun3 c 10 200
+    mknod /dev/net/tun4 c 10 200
+    mknod /dev/net/tun5 c 10 200
+    mknod /dev/net/tun6 c 10 200
+    mknod /dev/net/tun7 c 10 200
+    mknod /dev/net/tun8 c 10 200
+    mknod /dev/net/tun9 c 10 200
+    
+    
+    modprobe tun
+    
+    # 以下の行を /etc/modprobe.conf に追加
+    alias tun0 tun
+    alias tun1 tun
+    alias tun2 tun
+    alias tun3 tun
+    alias tun4 tun
+    alias tun5 tun
+    alias tun6 tun
+    alias tun7 tun
+    alias tun8 tun
+    alias tun9 tun
+           
+    # 以下のコマンドを実行
+    depmod -a
+    
+    # SHIFTのGTP-U用I/FのMTUを変更
+    # (物理I/FのMTUを変えないとVLAN I/FのMTUを変更できないので注意)
+    ifconfig eth1 mtu 1576
+    ifconfig eth1.2917 mtu 1576
+    
+    # RAを受け付ける (Linuxデフォルトで以下)
+    echo 1 > /proc/sys/net/ipv6/conf/default/accept_ra
+    echo 1 > /proc/sys/net/ipv6/conf/default/autoconf
+    echo 0 > /proc/sys/net/ipv6/conf/default/forwarding
+    
+    # 以下はお好みの値に
+    /proc/sys/net/ipv6/conf/default/router_solicitation_interval
+    /proc/sys/net/ipv6/conf/default/router_solicitations
+
+
+○対象マシンのFS
+    
+    # gut_req.shからのrshを受け付け
+     
+     /root/.rhosts にSHIFTのアドレスを設定する (FS - SHIFT間で導通可能なアドレス
+      .e.g.O&Mアドレス)
+
+
+
+
+■事前準備 ===========================================================
+
+
+    /root/TOOLS/GUT/v0.40 配下にTOOLを配置し、以下のファイルを各環境に合わせる
+
+    (★部分を環境に合わせて変更)
+
+
+    ① /etc/gut.conf
+    
+        ########################################################################
+        # GUT Configuration file
+        # 
+        #  行頭に'#'があるものだけコメント扱い。
+        #  値部分の空白は除去しないので注意!
+        # 
+        
+        #### static environment
+        MAX_TUNNEL_DEVICE	= 11
+        COMMAND_IP		= 172.30.32.153		# ★ FSのコマンド待ちアドレス。SHIFTと導通可のもの。
+        COMMAND_PORT		= 50000			# ★ コマンドポート。適当に。
+        GTP-U_UDP_Port		= 2152	
+        GTP-U_OWN_IP		= 192.168.221.210	# ★ eNB役のIP
+
+
+
+    ② gut_req.sh
+    
+        ##################################################################3
+        #
+        # Environment difinition
+        #
+        
+        #
+        # basic configuration
+        # 
+        %basic = (
+        
+        GW    => '172.30.33.47',		# ★ FSのコマンド待ちアドレス
+        IMSI  => '440101540040304',		# ★IMSI
+        RSH   => '/usr/bin/rsh',
+        TRC   => 'str_sgbtrc',
+        
+        );
+        
+        #
+        # Command socket
+        #
+        %command_socket = (
+        
+        OWN => {
+        IP      => '172.30.32.150',	# ★ gut_req.sh のコマンド送信アドレス。
+        PORT    => 50000,		# ★ gut_req.sh のコマンド送信ポート。適当に。
+        },
+        
+        DST => {
+        IP      => '172.30.32.151',	# ★ gut.conf で設定したアドレス。
+        PORT    => 50000,		# ★ gut.conf で設定したポート。
+        },
+        );
+        
+        
+        #
+        # Permanent routes
+        #   If no '-r4', '-r6' option's not specified, gut_req.sh use these value.
+        #
+        %perm_routes = (
+        
+        'noperu.ne.jp' => {			# ★ APN毎にサーバ役IPが決まっているなら
+           route4 => '192.171.61.0/24',		#    ここに書いておくと便利。
+           route6 => '',
+        },
+        
+        'y-mode.docomo.ne.jp' => {
+           route4 => '192.168.0.2',
+           route6 => '2001:1::1/128',
+        },
+        
+        );
+        
+        #
+        # End Environment difinition
+        ##################################################################3
+
+
+
+
+
+
+#======================================================================
+#
+#                           使い方
+#
+#======================================================================
+
+    1. SHIFTのMME/SGSN/P-GWノード作成時に『U-Plane試験をしない』で作成する
+    
+    
+    2. GUT本体を上げておく。
+          $ ./gut
+    
+            ※ コンフィグ指定なしのときは /etc/gut.confを読む。
+    
+          上げておけばEcho Req/Resのやり取り可能。
+    
+    
+    3．通常同様に擬似呼を使用して呼接続を行う
+    
+    
+    4．呼が繋がった後、GUT本体へセッション追加のリクエストを送信する。
+       
+            例) EBI指定
+                   $ ./gut_req.sh add -e 5
+                   
+            例) APN指定
+                   $ ./gut_req.sh add -a 'mopera.ne.jp'
+                   
+            例) コネクション番号指定
+                   $ ./gut_req.sh add -c 1
+
+               ※引数なしで実行すると '-e 5' となる
+
+
+    5． TOOLを起動したTerm以外のTermを起動して、HTTPサーバ向けにping、
+        FTP等を実施。
+
+
+    6.  試験終了後、GUT本体へセッション削除のリクエストを送信する。
+
+            例) EBI指定
+                   $ ./gut_req.sh del -e 5
+
+            例) 全消し
+                   $ ./gut_req.sh flush
+
+
+
+
+#======================================================================
+#
+#                      注意点と便利な使い方
+#
+#======================================================================
+
+■注意 ===============================================================
+
+    ・GUT本体は1つのeNodeBの役割。GTP-U IPは1つのGUT当たり1個
+      よって、eNodeBが変更される試験 (H.Oなど) でアドレスが変わるなら、
+          ⇒GUT本体を複数上げる。
+          ⇒gut_req.shで、コマンド送信先を変える
+      
+          $ ./gut gut1.conf   # ← eNodeB 1
+          $ ./gut gut2.conf   # ← eNodeB 2
+    
+    
+          $ ./gut_req.sh add -e 5 -d 172.30.32.162:50000	# eNodeB 1へ追加
+    
+          (X2 HOプロシージャ実施)
+    
+          $ ./gut_req.sh add -e 5 -d 172.30.32.162:50001	# eNodeB 2へ追加
+          
+          (X.Oで戻るならeNodeB1のセッションを消しておく)	# eNodeB 1へ追加 
+          $ ./gut_req.sh del -e 5 -d 172.30.32.162:50000
+
+
+
+
+■便利な使い方 ========================================================
+
+    ・GUT本体の動きを見る必要がないなら、バックグラウンド起動で放って置く
+          
+          $ ./gut > /dev/null &
+          
+          
+    ・コマンドの投げ先で混乱するなら、gut_req.shの作業シェルでエイリアスを
+      組んでおく
+          
+          $ set enb1="172.30.32.162:50000"
+          $ set enb2="172.30.32.162:50001"
+          
+          $ ./gut_req.sh add -e 5 -d $enb1
+
+
+
+■その他=================================================================
+
+○動作検証環境
+      ・YRP ESPGW 11A各種対向試験
+      ・SHIFT
+           Linux shift16 2.6.18-53.el5 #1 SMP Mon Nov 12 02:22:48 EST 2007 i686 i686 i386 GNU/Linux
+
+
+○お願い
+      ・ツールを改版したら以下までご展開ください。
+            YRP MME/GW対向試験Gr
+                  野澤　賢太郎 <nozawa.kn@cnt.ncos.nec.co.jp>
+                  近藤 隆司    <kondo.tkh@cnt.ncos.nec.co.jp>
+
+      ・やる気のある方へお願い
+            ・C-Plane信号から情報取得
+                 ⇒2スレッドにして、キャプチャスレッドにてpcapライブラリで
+                   GTPv2を取得・デコードし、転送スレッドに情報を設定。
+            ・複数ユーザ
+            ・Indirect H.O時、ダウンリンクパケットをIndirect Tunnelへターン
+              バック
+
+/******** Copyright k.nozawa/t.kondoh ***********/
+
+
+
+
+■ GUTの仕組み =================================================================
+
+
+■TCP/IPスタックで普通に通信する場合
+
+   +--------------+
+   | pingプロセス |
+   +--------------+
+          | write()
+          |
+          |   カーネル
+   +------|-------+
+   |      |       | 
+   | Routing Table|
+   |      |       |
+   |      |       |
+   |    eth1      | 
+   |      |       |
+   |      |       |
+   | device driver|
+   |      |       |
+   +------|-------+
+          _
+   +--------------+
+   | NIC Card     |
+   +--------------+
+
+
+
+■ GUT -- TUN/TAPでユーザランドVPNする場合
+
+   +--------------+      +------------+
+   | pingプロセス |      | VPN Appl   |
+   +--------------+      +------------+
+          | send()              ^
+          |                     | read()
+          |   カーネル          |
+   +------|-------+             |
+   |      |       |             |
+   | Routing Table|             |
+   |      |       |             |
+   |      |       |             |
+   |    tunX -------------------+
+   |              |
+   +--------------+
+
+
+  カプセル化パケット送信の流れ
+      1. ユーザプロセス(VPNアプリ)でTUNデバイスをopen()する。仮想I/Fが出来る。
+      2. 通常のプロセスからパケットをsend()
+      3. カーネルがルーティングテーブルからデバイス選択。仮想I/Fを送信元に決定。
+      4. 仮想I/Fがパケットを受け取る。
+      5. ユーザプロセス(VPNアプリ)で、open()したTUNデバイスへreadすると、仮想I/F
+         で受け取ったパケットを読める
+      6. ユーザプロセスで受け取った後は、GTPなり他のトンネルプロトコルなり好き
+         に包んで、それを対向のトンネルpeerへ普通に投げれば良い。
+
+  受信はこの逆。
+
+
+  TUN/TAPについては以下を参照
+    http://ja.wikipedia.org/wiki/TUN/TAP
+    http://www.kernel.org/pub/linux/kernel/people/marcelo/linux-2.4/Documentation/networking/tuntap.txt
+
+
+

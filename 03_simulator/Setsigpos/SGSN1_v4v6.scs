@@ -1,0 +1,1225 @@
+set {
+	generation_type = singleton;
+
+	public mode = 1;
+		public MODE_3G  = 1;
+		public MODE_LTE = 6;
+	public nodenum = 1;
+	
+	control cmd_attach_y-mode;
+	control cmd_detach;
+	control cmd_s1rel;
+	control cmd_ue_service;
+	control cmd_rau_wo_sgwchg;
+	control cmd_rau__rat_w_sgwchg_rat;
+	control cmd_init_state;
+	
+	# Inter RAT
+	
+	control ________________________________________edb2adcc11;
+	control isr_on = 0;
+	control isr_delete_session = 0;
+	
+	control ________________________________________edb2adcc10;
+	control cmd_taurau_from_mme1;
+	control cmd_taurau_from_mme2;
+	control cmd_taurau_from_sgsn1;
+	control cmd_taurau_from_sgsn2;
+	control cmd_taurau_manual;
+	control ________________________________________edb2adccaf;
+	control cmd_ho_wo_s_idrct_from_mme1;
+	control cmd_ho_wo_s_idrct_from_mme2;
+	control cmd_ho_wo_s_idrct_from_sgsn1;
+	control cmd_ho_wo_s_idrct_from_sgsn2;
+	control cmd_ho_wo_s_idrct_new_manual;
+	control cmd_ho_wo_s_idrct_old_manual;
+	control ________________________________________edb2adcc12;
+	control paging_not_responding  = 0;
+	control ________________________________________edb2adcc15;
+	control cmd_detach_ue_w_mme1;
+	control cmd_detach_ue_w_mme2;
+	control cmd_detach_ue_w_sgsn1;
+	control cmd_detach_ue_w_sgsn2;
+	control cmd_detach_hss_w_mme1;
+	control cmd_detach_hss_w_mme2;
+	control cmd_detach_hss_w_sgsn1;
+	control cmd_detach_hss_w_sgsn2;
+	
+	private detach_ue_w_sgsn1  = 0;
+	private detach_ue_w_sgsn2  = 0;
+	private detach_ue_w_mme1   = 0;
+	private detach_ue_w_mme2   = 0;
+	private detach_hss_w_sgsn1 = 0;
+	private detach_hss_w_sgsn2 = 0;
+	private detach_hss_w_mme1  = 0;
+	private detach_hss_w_mme2  = 0;	
+	
+	control ________________________________________edfafafacc15;
+	private sgw_teid_c;
+	control sgw_teid_c_manual = 0xffffffff;
+	private res_cause = 0;
+	
+	private GETPOS_CSR_SGW_TEID_C		= 94;
+	private GETPOS_CSR_SGW_TEID_C__3G	= 94;
+	
+	private synchro_num;
+	
+	timer rab_setup_delay         = 300;
+	timer paging_wait             = 5000;
+	timer indirect_time           = 4000;	# S-GWのIndirect内部タイマーは5s
+	
+
+
+
+
+	private CREATE_SESSION_REQUEST_YMODE_POS_APN	= 111;
+	private CREATE_SESSION_REQUEST_YMODE_POS_BCTXT_EBI	= 235;
+	private CREATE_SESSION_REQUEST_YMODE_POS_USER_INFORMATION	= 298;
+	private CREATE_SESSION_REQUEST_YMODE__3G_POS_APN	= 106;
+	private CREATE_SESSION_REQUEST_YMODE__3G_POS_INDICATION	= 74;
+	private CREATE_SESSION_REQUEST_YMODE__3G_POS_USER_INFORMATION	= 315;
+	private DELETE_SESSION_REQUEST_POS_INDICATION	= 21;
+	private DELETE_SESSION_REQUEST__3G_POS_INDICATION	= 21;
+	private MODIFY_BEARER_REQUEST_HO_WO_SGW_POS_INDICATION	= 21;
+	private MODIFY_BEARER_REQUEST_HO_WO_SGW__3G_POS_INDICATION	= 21;
+	private MODIFY_BEARER_REQUEST_TAURAU_POS_INDICATION	= 21;
+	private MODIFY_BEARER_REQUEST_TAURAU__3G_POS_INDICATION	= 21;
+	private MODIFY_BEARER_REQUEST_UE_SERV_POS_INDICATION	= 21;
+	private MODIFY_BEARER_REQUEST_UE_SERV__3G_POS_INDICATION	= 21;
+
+	transit_execute(STATE_TEST);
+}
+
+
+
+
+
+
+in STATE_TEST {
+	######## Attach ########
+	case control (cmd_attach_y-mode) {
+		if (mode == MODE_LTE ) { send( CREATE_SESSION_REQUEST_YMODE     ); }
+		if (mode == MODE_3G  ) { send( CREATE_SESSION_REQUEST_YMODE__3G );  }
+	}
+	
+	case receive(GTPv2:CREATE_SESSION_RESPONSE) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 				}
+		else {			 snap( "Response Cause = ", res_cause ); transit();	}
+		
+		if (mode == MODE_LTE ) {
+			getsigdata(sgw_teid_c, GETPOS_CSR_SGW_TEID_C,     4, 0xFFFFFFFF); 
+			transit_execute(STATE_UE_SERV);
+		}
+		if (mode == MODE_3G  ) {getsigdata(sgw_teid_c, GETPOS_CSR_SGW_TEID_C__3G, 4, 0xFFFFFFFF); }
+	}
+	
+	case control (cmd_detach) {
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		setsigdata( DELETE_SESSION_REQUEST,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( DELETE_SESSION_REQUEST     ); }
+		if (mode == MODE_3G  ) { send( DELETE_SESSION_REQUEST__3G ); }
+	}
+	
+	case control (isr_delete_session) {
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		setsigdata( DELETE_SESSION_REQUEST_CAUSE,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_CAUSE__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( DELETE_SESSION_REQUEST_CAUSE     ); }
+		if (mode == MODE_3G  ) { send( DELETE_SESSION_REQUEST_CAUSE__3G ); }
+	}
+	
+	case receive( GTPv2:DELETE_SESSION_RESPONSE ) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 				}
+		else {			 snap( "Response Cause = ", res_cause ); transit();	}
+		# Do nothing
+	}
+	
+	
+	case control( cmd_s1rel ) {
+		transit_execute( STATE_S1REL );
+	}
+	case control( cmd_ue_service ) {
+		transit_execute( STATE_UE_SERV );
+	}
+	
+	
+	
+	##############################################################
+	#  TAU
+	##############################################################
+	#       Source                        Target
+	#         |     1,001                 |
+	#         |<--------------------------|
+	#         |     1,000 sgw_teid_c      |
+	#         |-------------------------->|
+	#         |                           |
+	#         |                       Send M.B.Req
+	#
+	
+	##############################################################
+	#  TAU/RAU from MME1
+	case control( cmd_taurau_from_mme1 ) {
+		#if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(MME1, SYNCHRO, 1001);); } }
+		if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(MME1, SYNCHRO, 1002); } }
+		if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(MME1, SYNCHRO, 1003); } }
+		if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(MME1, SYNCHRO, 1004); } }
+	}
+	case control( cmd_taurau_from_mme2 ) {
+		if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(MME2, SYNCHRO, 1001); } }
+		#if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(MME2, SYNCHRO, 1002); } }
+		if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(MME2, SYNCHRO, 1003); } }
+		if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(MME2, SYNCHRO, 1004); } }
+	}
+	case control( cmd_taurau_from_sgsn1 ) {
+		if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(SGSN1, SYNCHRO, 1001); } }
+		if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(SGSN1, SYNCHRO, 1002); } }
+		#if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(SGSN1, SYNCHRO, 1003); } }
+		if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(SGSN1, SYNCHRO, 1004); } }
+	}
+	case control( cmd_taurau_from_sgsn2 ) {
+		if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(SGSN2, SYNCHRO, 1001); } }
+		if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(SGSN2, SYNCHRO, 1002); } }
+		if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(SGSN2, SYNCHRO, 1003); } }
+		#if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(SGSN2, SYNCHRO, 1004); } }
+	}
+	
+	case isc_receive (SYNCHRO, 1001) {
+		isc_send(MME1, SYNCHRO, 1000, sgw_teid_c);
+	}
+	case isc_receive (SYNCHRO, 1002) {
+		isc_send(MME2, SYNCHRO, 1000, sgw_teid_c);
+	}
+	case isc_receive (SYNCHRO, 1003) {
+		isc_send(SGSN1, SYNCHRO, 1000, sgw_teid_c);
+	}
+	case isc_receive (SYNCHRO, 1004) {
+		isc_send(SGSN2, SYNCHRO, 1000, sgw_teid_c);
+	}
+	
+	case control (cmd_taurau_manual)
+	case isc_receive (SYNCHRO, 1000, sgw_teid_c) {
+		transit_execute( STATE_TAU_WITHOUT_SGWCHG );
+	}
+	
+	
+	
+	##############################################################
+	#  HO wo S-GW Indirect
+	##############################################################
+	#       Source                        Target
+	#         |     3,001                 |
+	#         |<--------------------------|
+	#         |                           |
+	#    Send C.IDFT.Req                  |
+	#    Recv C.IDFT.Res                  |
+	#    start_timer(10s)                 |
+	#         |                           |
+	#         |     3,000 sgw_teid_c      |
+	#         |-------------------------->|
+	#         |                           |
+	#         |                       Send M.B.Req
+	#         |                           |
+	#    timer expiry                     |
+	#    Send D.IDFT.Req                  |
+	#         |                           |
+	#
+	##############################################################
+	case control( cmd_ho_wo_s_idrct_from_mme1 ) {
+		#if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(MME1, SYNCHRO, 3001);); } }
+		if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(MME1, SYNCHRO, 3002); } }
+		if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(MME1, SYNCHRO, 3003); } }
+		if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(MME1, SYNCHRO, 3004); } }
+	}
+	case control( cmd_ho_wo_s_idrct_from_mme2 ) {
+		if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(MME2, SYNCHRO, 3001); } }
+		#if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(MME2, SYNCHRO, 3002); } }
+		if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(MME2, SYNCHRO, 3003); } }
+		if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(MME2, SYNCHRO, 3004); } }
+	}
+	case control( cmd_ho_wo_s_idrct_from_sgsn1 ) {
+		if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(SGSN1, SYNCHRO, 3001); } }
+		if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(SGSN1, SYNCHRO, 3002); } }
+		#if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(SGSN1, SYNCHRO, 3003); } }
+		if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(SGSN1, SYNCHRO, 3004); } }
+	}
+	case control( cmd_ho_wo_s_idrct_from_sgsn2 ) {
+		if (mode == MODE_LTE) { if (nodenum == 1) { isc_send(SGSN2, SYNCHRO, 3001); } }
+		if (mode == MODE_LTE) { if (nodenum == 2) { isc_send(SGSN2, SYNCHRO, 3002); } }
+		if (mode == MODE_3G ) { if (nodenum == 1) { isc_send(SGSN2, SYNCHRO, 3003); } }
+		#if (mode == MODE_3G ) { if (nodenum == 2) { isc_send(SGSN2, SYNCHRO, 3004); } }
+	}
+	
+	case isc_receive (SYNCHRO, 3001) {
+		setvariable(synchro_num, 3001);
+		transit_execute(STATE_HO_WITHOUT_SGWCHG_INDIRECT_SOURCE);
+	}
+	case isc_receive (SYNCHRO, 3002) {
+		setvariable(synchro_num, 3002);
+		transit_execute(STATE_HO_WITHOUT_SGWCHG_INDIRECT_SOURCE);
+	}
+	case isc_receive (SYNCHRO, 3003) {
+		setvariable(synchro_num, 3003);
+		transit_execute(STATE_HO_WITHOUT_SGWCHG_INDIRECT_SOURCE);
+	}
+	case isc_receive (SYNCHRO, 3004) {
+		setvariable(synchro_num, 3004);
+		transit_execute(STATE_HO_WITHOUT_SGWCHG_INDIRECT_SOURCE);
+	}
+	case control (cmd_ho_wo_s_idrct_old_manual) {
+		transit_execute(STATE_HO_WITHOUT_SGWCHG_INDIRECT_SOURCE);
+	}
+	
+	case control (cmd_ho_wo_s_idrct_new_manual)
+	case isc_receive (SYNCHRO, 3000, sgw_teid_c) {
+		transit_execute( STATE_HO_WITHOUT_SGWCHG_INDIRECT_TARGET );
+	}
+	
+	
+	
+	
+	##############################################################
+	#    ISR Detach 
+	##############################################################
+	case control( cmd_detach_ue_w_mme1 )	{ setvariable(detach_ue_w_mme1,   1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_ue_w_mme2 )	{ setvariable(detach_ue_w_mme2,   1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_ue_w_sgsn1 )	{ setvariable(detach_ue_w_sgsn1,  1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_ue_w_sgsn2 )	{ setvariable(detach_ue_w_sgsn2,  1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_hss_w_mme1 )	{ setvariable(detach_hss_w_mme1,  1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_hss_w_mme2 )	{ setvariable(detach_hss_w_mme2,  1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_hss_w_sgsn1 )	{ setvariable(detach_hss_w_sgsn1, 1); transit_execute(STATE_ISR_DETACH); }
+	case control( cmd_detach_hss_w_sgsn2 ) 	{ setvariable(detach_hss_w_sgsn2, 1); transit_execute(STATE_ISR_DETACH); }
+	
+}
+
+
+
+
+in STATE_S1REL {
+	case execution () {
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		setsigdata( RELEASE_ACCESS_BEARERS_REQUEST,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( RELEASE_ACCESS_BEARERS_REQUEST__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( RELEASE_ACCESS_BEARERS_REQUEST     ); }
+		if (mode == MODE_3G  ) { send( RELEASE_ACCESS_BEARERS_REQUEST__3G ); }
+	}
+	case receive(GTPv2:RELEASE_ACCESS_BEARERS_RESPONSE) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 				}
+		else {			 snap( "Response Cause = ", res_cause ); transit();	}
+		# Do nothing
+		transit( STATE_TEST );
+	}
+}
+
+
+
+
+
+in STATE_UE_SERV {
+	case execution () {
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		if (isr_on == 1) {
+			setsigdata( MODIFY_BEARER_REQUEST_UE_SERV,     0x0200, MODIFY_BEARER_REQUEST_UE_SERV_POS_INDICATION,     2, 0x0200);
+			setsigdata( MODIFY_BEARER_REQUEST_UE_SERV__3G, 0x0200, MODIFY_BEARER_REQUEST_UE_SERV__3G_POS_INDICATION, 2, 0x0200);
+		}
+		else {
+			setsigdata( MODIFY_BEARER_REQUEST_TAURAU,     0x0000, MODIFY_BEARER_REQUEST_UE_SERV_POS_INDICATION,     2, 0x0200);
+			setsigdata( MODIFY_BEARER_REQUEST_TAURAU__3G, 0x0000, MODIFY_BEARER_REQUEST_UE_SERV__3G_POS_INDICATION, 2, 0x0200);
+		}
+		
+		setsigdata( MODIFY_BEARER_REQUEST_UE_SERV,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( MODIFY_BEARER_REQUEST_UE_SERV__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( MODIFY_BEARER_REQUEST_UE_SERV     ); }
+		if (mode == MODE_3G  ) { send( MODIFY_BEARER_REQUEST_UE_SERV__3G ); }
+	}
+	case receive(GTPv2:MODIFY_BEARER_RESPONSE) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 				}
+		else {			 snap( "Response Cause = ", res_cause ); transit();	}
+		# Do nothing
+		transit( STATE_TEST );
+	}
+}
+
+
+
+in STATE_TAU_WITHOUT_SGWCHG {
+	case execution () {
+		if (isr_on == 1) {
+			setsigdata( MODIFY_BEARER_REQUEST_TAURAU,     0x0200, MODIFY_BEARER_REQUEST_TAURAU_POS_INDICATION,     2, 0x0200);
+			setsigdata( MODIFY_BEARER_REQUEST_TAURAU__3G, 0x0200, MODIFY_BEARER_REQUEST_TAURAU__3G_POS_INDICATION, 2, 0x0200);
+		}
+		else {
+			setsigdata( MODIFY_BEARER_REQUEST_TAURAU,     0x0000, MODIFY_BEARER_REQUEST_TAURAU_POS_INDICATION,     2, 0x0200);
+			setsigdata( MODIFY_BEARER_REQUEST_TAURAU__3G, 0x0000, MODIFY_BEARER_REQUEST_TAURAU__3G_POS_INDICATION, 2, 0x0200);
+		}
+		
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		setsigdata( MODIFY_BEARER_REQUEST_TAURAU,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( MODIFY_BEARER_REQUEST_TAURAU__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( MODIFY_BEARER_REQUEST_TAURAU     ); }
+		if (mode == MODE_3G  ) { send( MODIFY_BEARER_REQUEST_TAURAU__3G ); }
+	}
+	case receive(GTPv2:MODIFY_BEARER_RESPONSE) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 				}
+		else {			 snap( "Response Cause = ", res_cause ); transit();	}
+		# Do nothing
+		transit( STATE_TEST );
+	}
+}
+
+
+
+
+in STATE_HO_WITHOUT_SGWCHG_INDIRECT_SOURCE {
+	case execution () {
+		setsigdata( CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST     ); }
+		if (mode == MODE_3G  ) { send( CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST__3G ); }
+	}
+	case receive (GTPv2:CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_RESPONSE) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 			}
+		else {			 snap( "Response Cause = ", res_cause ); 	}
+		
+		if (synchro_num == 3001) {
+			isc_send(MME1, SYNCHRO, 3000, sgw_teid_c);
+		}
+		if (synchro_num == 3002) {
+			isc_send(MME2, SYNCHRO, 3000, sgw_teid_c);
+		}
+		if (synchro_num == 3003) {
+			isc_send(SGSN1, SYNCHRO, 3000, sgw_teid_c);
+		}
+		if (synchro_num == 3004) {
+			isc_send(SGSN2, SYNCHRO, 3000, sgw_teid_c);
+		}
+		
+		start_timer(indirect_time);
+	}
+	case expiry(indirect_time) {
+		setsigdata( DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST     ); }
+		if (mode == MODE_3G  ) { send( DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST__3G ); }
+		
+		# Response receive in any state because no need for response.
+		
+		transit( STATE_TEST );
+	}
+}
+
+in STATE_HO_WITHOUT_SGWCHG_INDIRECT_TARGET {
+	case execution () {
+		if (isr_on == 1) {
+			setsigdata( MODIFY_BEARER_REQUEST_HO_WO_SGW,     0x0200, MODIFY_BEARER_REQUEST_HO_WO_SGW_POS_INDICATION,     2, 0x0200);
+			setsigdata( MODIFY_BEARER_REQUEST_HO_WO_SGW__3G, 0x0200, MODIFY_BEARER_REQUEST_HO_WO_SGW__3G_POS_INDICATION, 2, 0x0200);
+		}
+		else {
+			setsigdata( MODIFY_BEARER_REQUEST_HO_WO_SGW,     0x0000, MODIFY_BEARER_REQUEST_HO_WO_SGW_POS_INDICATION,     2, 0x0200);
+			setsigdata( MODIFY_BEARER_REQUEST_HO_WO_SGW__3G, 0x0000, MODIFY_BEARER_REQUEST_HO_WO_SGW__3G_POS_INDICATION, 2, 0x0200);
+		}
+		
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		setsigdata( MODIFY_BEARER_REQUEST_HO_WO_SGW,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( MODIFY_BEARER_REQUEST_HO_WO_SGW__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( MODIFY_BEARER_REQUEST_HO_WO_SGW     ); }
+		if (mode == MODE_3G  ) { send( MODIFY_BEARER_REQUEST_HO_WO_SGW__3G ); }
+	}
+	case receive(GTPv2:MODIFY_BEARER_RESPONSE) {
+		getsigdata( res_cause, 16, 1, 0xFF );
+		if( res_cause == 0x10 ){ snap( "Response Cause OK" ); 				}
+		else {			 snap( "Response Cause = ", res_cause ); transit();	}
+		# do nothing
+		transit( STATE_TEST );
+	}
+}
+
+
+
+
+
+
+in STATE_ISR_DETACH {
+	case execution () {
+		setsigdata( DELETE_SESSION_REQUEST_MME_SIDE_DETACH,      sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_MME_SIDE_DETACH__3G,  sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH,      sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH__3G,  sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		
+		# MME Side DETACH
+		if ( detach_ue_w_sgsn1 == 1) {	send( DELETE_SESSION_REQUEST_MME_SIDE_DETACH ); }
+		if ( detach_ue_w_sgsn2 == 1) {	send( DELETE_SESSION_REQUEST_MME_SIDE_DETACH );	}
+		
+		# SGSN Side DETACH
+		if ( detach_ue_w_mme1 == 1) {	send( DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH__3G ); }
+		if ( detach_ue_w_mme2 == 1) {	send( DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH__3G ); }
+		
+		# HSS Detach
+		if ( detach_hss_w_sgsn1 == 1) {	isc_send(SGSN1, SYNCHRO, 2000);	send( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH ); }
+		if ( detach_hss_w_sgsn2 == 1) {	isc_send(SGSN2, SYNCHRO, 2000);	send( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH );	}
+		if ( detach_hss_w_mme1 == 1) {	isc_send(MME1, SYNCHRO, 2000);	send( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH__3G ); }
+		if ( detach_hss_w_mme2 == 1) {	isc_send(MME2, SYNCHRO, 2000);	send( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH__3G ); }
+	}
+	
+	case receive (GTPv2:DELETE_SESSION_RESPONSE) {
+		if ( detach_ue_w_sgsn1 == 1) {	isc_send(SGSN1, SYNCHRO, 2001);	}
+		if ( detach_ue_w_sgsn2 == 1) {	isc_send(SGSN2, SYNCHRO, 2001);	}
+		if ( detach_ue_w_mme1 == 1) {	isc_send(MME1, SYNCHRO, 2001);	}
+		if ( detach_ue_w_mme2 == 1) {	isc_send(MME2, SYNCHRO, 2001);	}
+		
+		setvariable(detach_ue_w_sgsn1, 0);
+		setvariable(detach_ue_w_sgsn2, 0);
+		setvariable(detach_ue_w_mme1,  0);
+		setvariable(detach_ue_w_mme2,  0);
+		setvariable(detach_hss_w_sgsn1, 0);
+		setvariable(detach_hss_w_sgsn2, 0);
+		setvariable(detach_hss_w_mme1,  0);
+		setvariable(detach_hss_w_mme2,  0);
+		
+		transit(STATE_TEST);
+	}
+}
+
+
+
+
+in ANY_STATE {
+	case kill {
+		transit(NULL_STATE);
+	}
+	
+	case receive( GTPv2:STOP_PAGING_INDICATION ) {
+		snap("STOP_PAGING_INDICAIOTN receive");
+		# do nothing
+	}
+	
+	
+	# HSS Side Detach
+	case isc_receive(SYNCHRO, 2000) {
+		setsigdata( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_HSS_SIDE_DETACH__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE) { send(DELETE_SESSION_REQUEST_HSS_SIDE_DETACH);	}
+		if (mode == MODE_3G ) { send(DELETE_SESSION_REQUEST_HSS_SIDE_DETACH__3G);	}
+		setvariable(detach_ue_w_sgsn1, 0);
+		setvariable(detach_ue_w_sgsn2, 0);
+		setvariable(detach_ue_w_mme1,  0);
+		setvariable(detach_ue_w_mme2,  0);
+		setvariable(detach_hss_w_sgsn1, 0);
+		setvariable(detach_hss_w_sgsn2, 0);
+		setvariable(detach_hss_w_mme1,  0);
+		setvariable(detach_hss_w_mme2,  0);
+		transit();
+	}
+	
+	# Other Side Detach
+	case isc_receive(SYNCHRO, 2001) {
+		setsigdata( DELETE_SESSION_REQUEST_MME_SIDE_DETACH__3G,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH,        sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE) { send(DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH   );	}
+		if (mode == MODE_3G ) { send(DELETE_SESSION_REQUEST_MME_SIDE_DETACH__3G);	}
+		setvariable(detach_ue_w_sgsn1, 0);
+		setvariable(detach_ue_w_sgsn2, 0);
+		setvariable(detach_ue_w_mme1,  0);
+		setvariable(detach_ue_w_mme2,  0);
+		setvariable(detach_hss_w_sgsn1, 0);
+		setvariable(detach_hss_w_sgsn2, 0);
+		setvariable(detach_hss_w_mme1,  0);
+		setvariable(detach_hss_w_mme2,  0);
+		transit();
+	}
+	
+	
+	
+	case receive( GTPv2:DELETE_BEARER_REQUEST ) {
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+	
+		setsigdata( DELETE_BEARER_RESPONSE,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DELETE_BEARER_RESPONSE__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( DELETE_BEARER_RESPONSE     ); }
+		if (mode == MODE_3G  ) { send( DELETE_BEARER_RESPONSE__3G ); }
+	}
+	
+	
+	
+	# NW Service Request
+	case receive( GTPv2:DOWNLINK_DATA_NOTIFICATION ) {
+		if (sgw_teid_c_manual != 0xffffffff)  { setvariable(sgw_teid_c, sgw_teid_c_manual); }
+		
+		setsigdata( DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGEMENT,     sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		setsigdata( DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGEMENT__3G, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		if (mode == MODE_LTE ) { send( DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGEMENT     ); }
+		if (mode == MODE_3G  ) { send( DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGEMENT__3G ); }
+		
+		if (paging_not_responding == 1) {
+			start_timer(paging_wait);
+			transit();
+		}
+		
+		start_timer(rab_setup_delay);
+	}
+	case expiry (paging_wait) {
+		setsigdata( DOWNLINK_DATA_NOTIFICATION_FAILURE_INDICATION, sgw_teid_c, 4, 4, 0xFFFFFFFF);
+		send( DOWNLINK_DATA_NOTIFICATION_FAILURE_INDICATION );
+		transit( STATE_TEST );
+	}
+	case expiry (rab_setup_delay) {
+		transit_execute( STATE_UE_SERV );
+	}
+	
+	
+	
+	case receive( GTPv2:DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_RESPONSE ) {
+		# do nothing
+	}
+}
+
+
+
+
+
+#########################################################################################
+#   PDU Difinition
+#########################################################################################
+
+#=======================================================================================
+#     #   #      #   #   ###   ###    #####  
+#      # #       ## ##  #   #  #  #   #      
+#       #   #### # # #  #   #  #   #  ####   
+#       #        #   #  #   #  #  #   #      
+#       #        #   #   ###   ###    #####  
+#=======================================================================================
+pdu CREATE_SESSION_REQUEST_YMODE {
+	4820 0129 0000 0000 0033 5700
+	### IMSI
+	01 0008 00
+	        44103000005000f4
+	### MSISDN
+	4c 0006 00
+	        180908920540
+	### MEI
+	4b 0008 00
+	        5313864000201500
+	### ULI
+	56 000d 00
+	        1844f001ff2044f00102000a04
+	### Serving Network
+	53 0003 00
+	        44f001
+	### RAT Type
+	52 0001 00
+	        06
+	### Indication
+	4d 0002 00
+	        8004
+	### F-TEID
+	57 0009 00
+	        8a04001df9 ac1f7805
+	### F-TEID
+	57 0009 01
+	        8700000000 AC1EBEC4
+	### APN
+	47 0024 00
+	        05 6570633031   #[POS_APN]
+	        06 696d7461706c
+	        03 6e6574
+	        06 6d6e63303130
+	        06 6d6363343430
+	        04 67707273
+	### Selection Mode
+	80 0001 00
+	        01
+	### PDN Type
+	63 0001 00
+	        03
+	### PAA
+	4f 0016 00
+	        03 00 00000000 00000000 00000000 00000000
+	           00000000
+	### APN Restriction
+	7f 0001 00
+	        00
+	### AMBR
+	48 0008 00
+	        0041893700418937
+	### PCO
+	4e 0017 00
+	        80      # ext
+	        8021 10 # IPCP
+	                01 00 0010
+	                        81 06 00000000
+	                        83 06 00000000
+	        000a 00 # IP address allocation via NAS signalling
+	### Bearer Context
+	5d 001f 00
+	        ### EBI
+	        49 0001 00
+	                05	#[POS_BCTXT_EBI]
+	        ### Bearer QoS
+	        50 0016 00
+	                7c090000000000000000000000000000000000000000
+	### Recovery
+	03 0001 00
+	        07
+	### Private Extension
+	ff 001e 00
+	        0580
+	        01 0001 14
+	        02 0003 5400f0
+	        04 0001 01
+	        09 0001 01
+	        06 0001 00
+	        11 0003 
+	        	00 01 41	#[POS_USER_INFORMATION]
+
+
+
+}
+
+
+
+
+
+
+pdu CREATE_SESSION_REQUEST_YMODE__3G {
+	4820 013a 00000000 0000 0000
+	### IMSI
+	01 0008 00
+		44101045000403f4
+	### MSISDN
+	4c 0006 00
+		180881171074
+	### MEI
+	4b 0008 00
+		2143652121436521
+	### ULI
+	56 0008 00
+		04 44f001 0003 00ff
+	### Serving Network
+	53 0003 00
+		44f001
+	### RAT Type
+	52 0001 00
+		01
+	### Indication
+	4d 0002 00
+		0004	#[POS_INDICATION]
+	### F-TEID
+	57 0009 00
+		91 00000000 ac1efc14
+	### F-TEID
+	57 0009 01
+		87 00000000 AC1EBEC4
+
+	### APN
+	47 0024 00
+	        05 6570633031   #[POS_APN]
+	        06 696d7461706c
+	        03 6e6574
+	        06 6d6e63303130
+	        06 6d6363343430
+	        04 67707273
+	### Selection Mode
+	80 0001 00
+		01
+	### PDN Type
+	63 0001 00
+		02
+	### PAA
+	4f 0012 00
+		02 00 00000000 00000000 00000000 00000000
+	### APN Restriction
+	7f 0001 00
+		00
+	### AMBR
+	48 0008 00
+		03e41800 03e41800
+	### PCO
+	4e 0030 00
+		80
+			c023 16 01 00 0016
+				06 757365726e31
+				0a 70617373776f72646e31
+			0003 00
+			f001 06	# TIP
+				01 0006 01 03 45
+			f002 07	# DOCOMO EXTENSION
+				09 05 1234561212
+	### Bearer Context
+	5d 002c 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 01
+			8f 00000001 C0A8D846
+		### Bearer QoS
+		50 0016 00
+			3c 09 0000000000 0000000000 0000000000 0000000000
+	### Recovery
+	03 0001 00
+		07
+	
+	### Private Extension
+	ff 0012 00
+		0580 
+		01 0001 0a 	# Subscribed-Carrier-Name
+		02 0003 2143f5	# CA-Code
+		#04 0001 01	# Low Class Type: 1:all, 2:A, 3:B, 4:C, 5:D
+		#05 0001 01	# 暫定開通フラグ: 1:オン暫, 2:OTA暫
+		#06 0001 00	# リミ契フラグ: 0:未超過, 1:超過
+		#08 0002 01 02 	# MVNO: Oct1:MVNO-ID,  Oct2: pad / pad / pad / S5-Ind / 3big:MVNO-Kind 1:専, 2:汎基, 3:汎オ
+		#09 0001 00	# Packet-Schceduling-Indicator: 0:非対象, 1:A, 2:B, 3:C
+		11 0003 	# DOCOMO-CONTAINER
+			00 01 01	# User-Information #[POS_USER_INFORMATION]
+}
+
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu DELETE_SESSION_REQUEST{
+	4824 0013 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0800	#[POS_INDICATION]
+}
+
+
+pdu DELETE_SESSION_REQUEST__3G {
+	4824 0013 0000 0025 0069 0000
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0800	#[POS_INDICATION]
+}
+
+
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu DELETE_SESSION_REQUEST_CAUSE {
+	4824 0014 0000 0001 0006 0000
+	### Cause
+	02 0002 00
+		0500	# 5:ISR Deactivation
+	### Indication
+	4d 0002 00
+		0002
+}
+
+
+pdu DELETE_SESSION_REQUEST_CAUSE__3G {
+	4824 0014 0000 0001 0006 0000
+	### Cause
+	02 0002 00
+		0500	# 5:ISR Deactivation
+	### Indication
+	4d 0002 00
+		0002
+}
+
+
+
+
+#---------------------------------------------------------------------------------------
+###################################################
+# MME Side Detach 
+
+#   MME
+pdu DELETE_SESSION_REQUEST_MME_SIDE_DETACH {
+	4824 0018 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0000
+	### Node Type (Originating Node)
+	87 0001 00
+		00
+}
+
+#   SGSN
+pdu DELETE_SESSION_REQUEST_MME_SIDE_DETACH__3G {
+	4824 001e 0000 0025 0069 0000
+	### Cause
+	02 0002 00
+		0500	
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0800
+	### Node Type (Originating Node)
+	87 0001 00
+		01
+}
+
+
+
+###################################################
+# SGSN Side Detach 
+
+#   MME
+pdu DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH {
+	4824 0018 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0000
+	### Node Type (Originating Node)
+	87 0001 00
+		00
+}
+
+#   SGSN
+pdu DELETE_SESSION_REQUEST_SGSN_SIDE_DETACH__3G {
+	4824 001e 0000 0001 0006 0000
+	### Cause
+	02 0002 00
+		0500	
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0000
+	### Node Type (Originating Node)
+	87 0001 00
+		01
+}
+
+
+###################################################
+# HSS Side Detach 
+
+#   MME
+pdu DELETE_SESSION_REQUEST_HSS_SIDE_DETACH {
+	4824 0018 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0000
+	### Node Type (Originating Node)
+	87 0001 00
+		00
+}
+
+#   SGSN
+pdu DELETE_SESSION_REQUEST_HSS_SIDE_DETACH__3G {
+	4824 0018 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+	### Indication
+	4d 0002 00
+		0000
+	### Node Type (Originating Node)
+	87 0001 00
+		01
+}
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu RELEASE_ACCESS_BEARERS_REQUEST {
+	48AA 000d 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+}
+
+pdu RELEASE_ACCESS_BEARERS_REQUEST__3G {
+	48AA 000d 0000 0001 0006 0000
+	### EBI
+	49 0001 00
+		05
+}
+
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu MODIFY_BEARER_REQUEST_UE_SERV {
+	4822 0033 0000 0001 0000 0200 
+	### RAT Type
+	52 0001 00
+		06
+	### Indication
+	4d 0002 00
+		0000	#[POS_INDICATION]
+	### Delay Value
+	5C 0001 00
+		01
+	### Bearer Context 
+	5d 0012 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 00
+			8000000000 C0A8D859
+	### Recovery
+	03 0001 00
+		07
+}
+
+
+
+
+pdu MODIFY_BEARER_REQUEST_UE_SERV__3G {
+	4822 0036 0000 0001 0003 0000
+	### RAT Type
+	52 0001 00
+		01
+	### Indication
+	4d 0002 00
+		0000	#[POS_INDICATION]
+	### F-TEID
+	57 0009 00
+		91 00000001 c0a8d898
+	### Bearer Context
+	5d 0012 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 03
+			8f 00000001 C0A8D846
+}
+
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu MODIFY_BEARER_REQUEST_TAURAU {
+	4822 002e 0000 0001 0000 0200 
+	### RAT Type
+	52 0001 00
+		06
+	### Indication
+	4d 0002 00
+		0000	#[POS_INDICATION]
+	### F-TEID
+	57 0009 00			# F-TEID(I/F-Type=10(S11MME GTP-C interface))
+		8a 00000003 ac1efc14
+	### Bearer Context 
+	5d 0005 00
+		### EBI
+		49 0001 00
+			05
+	### Recovery
+	03 0001 00
+		07
+}
+
+pdu MODIFY_BEARER_REQUEST_TAURAU__3G {
+	4822 002e 8000 007d 0003 0000 
+	### RAT Type
+	52 0001 00
+		01
+	### Indication
+	4d 0002 00
+		0000	#[POS_INDICATION]
+	### F-TEID
+	57 0009 00
+		9100000001c0a8d89a
+	### Bearer Context 
+	5d 0005 00
+		### EBI
+		49 0001 00
+			05
+	### Recovery
+	03 0001 00
+		07
+}
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu MODIFY_BEARER_REQUEST_HO_WO_SGW {
+	4822 003b 0000 0001 0000 0200 
+	### RAT Type
+	52 0001 00
+		06
+	### Indication
+	4d 0002 00
+		0000	#[POS_INDICATION]
+	### F-TEID
+	57 0009 00			# F-TEID(I/F-Type=10(S11MME GTP-C interface))
+		8a 00000003 ac1efc14
+	### Bearer Context 
+	5d 0012 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 00
+			80 00000000 C0A8D846
+	### Recovery
+	03 0001 00
+		07
+}
+
+pdu MODIFY_BEARER_REQUEST_HO_WO_SGW__3G {
+	4822 003b 8000 007d 0003 0000 
+	### RAT Type
+	52 0001 00
+		01
+	### Indication
+	4d 0002 00
+		0000	#[POS_INDICATION]
+	### F-TEID
+	57 0009 00
+		9100000001c0a8d89a
+	### Bearer Context 
+	5d 0012 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 03
+			8f 00000001 C0A8D846
+	### Recovery
+	03 0001 00
+		07
+}
+
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST {
+	48a6 0023 0000 0001 0000 0200
+	### Bearer Context
+	5D 0012 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 02
+			96 00010001 C0A8D846
+	### Recovery
+	03 0001 00
+	07
+}
+
+pdu DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST {
+	48a8 0008 0000 0001 0000 0200
+}
+
+
+pdu CREATE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST__3G {
+	48a6 001e 0000 0001 0000 0200
+	### Bearer Context
+	5D 0012 00
+		### EBI
+		49 0001 00
+			05
+		### F-TEID
+		57 0009 00
+			93 00010000 C0A8D846
+}
+
+pdu DELETE_INDIRECT_DATA_FORWARDING_TUNNEL_REQUEST__3G {
+	48a8 0008 0000 0001 0000 0200
+}
+
+
+
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGEMENT {
+	48B1 0018 0000 0000 0000 0000
+	### Cause
+	02 0002 00
+		1000	
+ 	### Data Notification Delay
+ 		5C 0001 00
+		FF
+	### Recovery
+	03 0001 00
+		07
+}
+
+pdu DOWNLINK_DATA_NOTIFICATION_ACKNOWLEDGEMENT__3G {
+	48B1 0013 0000 0000 0000 0000
+	### Cause
+	02 0002 00
+		1000
+	### Recovery
+	03 0001 00
+		07
+}
+
+
+
+
+#---------------------------------------------------------------------------------------
+pdu DELETE_BEARER_RESPONSE {
+	4864 0018 0000 0000 0000 0000
+	### Cause
+	02 0002 00
+		1000
+	### EBI
+	49 0001 00
+		05
+	### Recovery
+	03 0001 00
+		07
+}
+
+pdu DELETE_BEARER_RESPONSE__3G {
+	4864 0018 0000 0000 0000 0000
+	02 0002 00  1000
+	49 0001 00  05
+	03 0001 00  07
+}
+
+
+
+#---------------------------------------------------------------------------------------
+pdu DOWNLINK_DATA_NOTIFICATION_FAILURE_INDICATION {
+	4846 000e 0000 0000 0000 0000
+	### Cause
+	02 0002 00
+		5700
+}
+
+
+

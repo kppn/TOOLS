@@ -1,0 +1,64 @@
+#==============================================================================
+#
+# GUTの基本的な利用手順
+# 
+#==============================================================================
+
+
+eNBのコネクション作成の例
+
+○事前情報
+	gut        : 本体。トンネルI/Fを作り、GTPカプセリングを担う
+
+	gut_set.sh : gutにコネクションを作るコマンドのサポートツール
+	             afpdebugから情報を取る
+
+
+○ GUT本体を上げる
+	
+	1．SHIFTでGWUのコネクションを張る
+	
+	2. afpdebugで疑似呼役のIPノードのIPを調べる
+	   i.e.) eNBやP-GW(GTP) 役のIP
+	
+	3. gut.confにIPを書く
+		#### static environment
+		BASE_TUNNEL_DEVICE	= 0
+		MAX_TUNNEL_DEVICE	= 3
+		COMMAND_IP		= 127.0.0.1
+		COMMAND_PORT		= 50000
+		GTP-U_UDP_Port		= 2152
+		GTP-U_OWN_IP		= 10.0.130.129  ★eNBやP-GW役のIP
+	
+	
+	4. gut本体を上げる。これはこのまま上げっぱなしでOK
+		./gut gut.conf
+	
+	
+○ ツールでトンネルI/Fを作り、U-Planeを飛ばす
+	★同じホストがS1-UとSGiサーバ役アドレスを持っている場合、
+	  パケットがLinux内部でルーティングされ、U-Planeとして飛ばない！
+	  その場合、隣のSHIFTのSGiサーバ役を宛先にする
+	
+
+	1. GUTにGTPトンネルI/Fを作る
+		./gut_set.sh -c 1 -r 'xxx.xxx.xxx.xxx/32'
+	
+			# -c x                     : afpdebug findで出るidxの値
+			# -r 'xxx.xxx.xxx.xxx/32'  : SGiサーバのIP。
+	
+	2. pingを飛ばす
+		ping xxx.xxx.xxx.xxx
+	
+	
+○ トンネルI/Fを消す
+		./gut_set.sh -d
+	
+	
+○ 現在のトンネルI/F、パケット送受信量を表示
+		./gut_set.sh -p
+	
+		ifconfig 
+
+
+

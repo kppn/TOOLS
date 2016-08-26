@@ -1,0 +1,2414 @@
+set
+{
+    generation_type = singleton;
+    
+    control cmd_attach_ymode;
+    control cmd_sgwchange_ymode;
+    control cmd_detach_ymode;
+    
+    control _______________________________dummy2;
+    control cmd_detach_all;
+    control cmd_sgwchange_all;
+    control cmd_sgwchange_all_manual;
+    
+    control _______________________________dummy3;
+    control cmd_tau;
+    control cmd_ho;
+    
+    control ________Set_APN________;
+    control set_i-mode_apn       = 0x79; # 'y':0x79, 'o':0x6f
+    control set_mopera_apn       = 0x75; # 'u':0x75, 'i':0x69
+        private cur_apn_chr          = 0;
+    control set_apn_spmod1 = 0;
+    control set_apn_qpmode = 0;
+        private str_apn;
+        private str_pos;
+    control set_PAP_Pass_passwordn1 = 0;
+    control set_PAP_Pass_password99 = 0;
+    
+    control ________MOPERA_Command________;
+    control cmd_attach_mopera;
+    control cmd_sgwchange_mopera;
+    control cmd_detach_mopera;
+
+    control ________SPMODE_Command_______;
+    control cmd_attach_spmode;
+    control cmd_sgwchange_spmode;
+    control cmd_detach_spmode;
+
+    control ________ISP_Command_______;
+    control cmd_attach_isp;
+    control cmd_sgwchange_isp;
+    control cmd_detach_isp;
+   
+    control _________________________;
+    control inter_rat_ho_w_sgw_indirect;
+    control intra_tau_w_sgw;
+    control inter_tau_w_sgw;
+    control set_pgw_giji = 0;
+
+
+    private temporary             = 0;
+    
+    
+    control IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII;
+    # Manual Setting
+    control manset_active_ebi1_kind = 0;
+    control manset_active_ebi1_apn  = 0;
+        control manset_pgw_teid_c1      = 0;
+    control manset_active_ebi1_useraddr1 = 0; control manset_active_ebi1_useraddr2 = 0; control manset_active_ebi1_useraddr3 = 0; control manset_active_ebi1_useraddr4 = 0;
+    control _______________________________f47282d89b;
+    control manset_active_ebi2_kind = 0;
+    control manset_active_ebi2_apn  = 0;
+        control manset_pgw_teid_c2      = 0;
+    control manset_active_ebi2_useraddr1 = 0; control manset_active_ebi2_useraddr2 = 0; control manset_active_ebi2_useraddr3 = 0; control manset_active_ebi2_useraddr4 = 0;
+    control _______________________________09dabd26f8;
+    control manset_active_ebi3_kind = 0;
+    control manset_active_ebi3_apn  = 0;
+        control manset_pgw_teid_c3      = 0;
+    control manset_active_ebi3_useraddr1 = 0; control manset_active_ebi3_useraddr2 = 0; control manset_active_ebi3_useraddr3 = 0; control manset_active_ebi3_useraddr4 = 0;
+    
+    
+    private activate_kind = 0;      # 0：初期値
+            public ACTIVATE_KIND_MOPERA = 1;
+            public ACTIVATE_KIND_IMODE  = 2;
+            public ACTIVATE_KIND_SPMODE = 3;
+            public ACTIVATE_KIND_ISP    = 4;
+    private active_ebi1_kind = 0;
+    private active_ebi2_kind = 0;
+    private active_ebi3_kind = 0;
+    private active_ebi1_apn  = 0;
+    private active_ebi2_apn  = 0;
+    private active_ebi3_apn  = 0;
+        private pgw_teid_c_tmp      = 0;
+        private pgw_teid_c1      = 0;
+        private pgw_teid_c2      = 0;
+        private pgw_teid_c3      = 0;
+    
+    private addr_pos;
+    private active_ebi1_useraddr1 = 0; private active_ebi1_useraddr2 = 0; private active_ebi1_useraddr3 = 0; private active_ebi1_useraddr4 = 0;
+    private active_ebi2_useraddr1 = 0; private active_ebi2_useraddr2 = 0; private active_ebi2_useraddr3 = 0; private active_ebi2_useraddr4 = 0;
+    private active_ebi3_useraddr1 = 0; private active_ebi3_useraddr2 = 0; private active_ebi3_useraddr3 = 0; private active_ebi3_useraddr4 = 0;
+    private active_ebi1_useraddr1_ipv6 = 0;
+    private intra_tau_with_sgwchg = 0;
+    private inter_tau_with_sgwchg = 0;    
+    
+    private status;
+
+    
+    timer wait_source_sgw_delete = 500;
+    
+    private teid=0;                 # Sender F-TEID for Control Plane
+
+
+    #### for 11A ZenNode ####
+    private sig_pos = 0;
+    private str_apn1 = 0;
+    private str_apn2 = 0;
+    private useraddrv4 = 0;
+    private home_nw_prefix1 = 0;
+    private home_nw_prefix2 = 0;
+    private home_nw_prefix3 = 0;
+    private home_nw_prefix4 = 0;
+    private gre_key = 0;
+
+    private act_ebi1_str_apn1 = 0;
+    private act_ebi1_str_apn2 = 0;
+    private act_ebi1_useraddrv4 = 0;
+    private act_ebi1_home_nw_prefix1 = 0;
+    private act_ebi1_home_nw_prefix2 = 0;
+    private act_ebi1_home_nw_prefix3 = 0;
+    private act_ebi1_home_nw_prefix4 = 0;
+    private act_ebi1_gre_key = 0;
+
+    private act_ebi2_str_apn1 = 0;
+    private act_ebi2_str_apn2 = 0;
+    private act_ebi2_useraddrv4 = 0;
+    private act_ebi2_home_nw_prefix1 = 0;
+    private act_ebi2_home_nw_prefix2 = 0;
+    private act_ebi2_home_nw_prefix3 = 0;
+    private act_ebi2_home_nw_prefix4 = 0;
+    private act_ebi2_gre_key = 0;
+
+    private act_ebi3_str_apn1 = 0;
+    private act_ebi3_str_apn2 = 0;
+    private act_ebi3_useraddrv4 = 0;
+    private act_ebi3_home_nw_prefix1 = 0;
+    private act_ebi3_home_nw_prefix2 = 0;
+    private act_ebi3_home_nw_prefix3 = 0;
+    private act_ebi3_home_nw_prefix4 = 0;
+    private act_ebi3_gre_key = 0;
+
+
+    private pbu_kind = 0;
+        private PBU_CREATE = 1;
+        private PBU_DELETE = 2;
+    private handoff_ind = 0;
+        private HANDOFF_ATTACH = 1;
+        private HANDOFF_SGW_CHANGE = 3;
+        private HANDOFF_DETACH = 4;
+        private HANDOFF_RAT_CHANGE = 5;
+
+
+
+
+
+
+
+
+
+
+
+	private BINDING_REVOCATION_ACK_V4V6_POS_APN	= 150;
+	private BINDING_REVOCATION_ACK_V4V6_POS_HOME_NW_PREFIX	= 120;
+	private BINDING_REVOCATION_ACK_V4V6_POS_USERADDR	= 144;
+	private BINDING_REVOCATION_ACK_V4_POS_APN	= 111;
+	private BINDING_REVOCATION_ACK_V4_POS_USERADDR	= 152;
+	private PROXY_BINDING_UPDATE_ISP_ATTACH_POS_APN	= 198;
+	private PROXY_BINDING_UPDATE_ISP_DETACH_POS_APN	= 112;
+	private PROXY_BINDING_UPDATE_ISP_DETACH_POS_USERADDR	= 148;
+	private PROXY_BINDING_UPDATE_ISP_SGWCHANGE_POS_APN	= 112;
+	private PROXY_BINDING_UPDATE_ISP_SGWCHANGE_POS_USERADDR	= 168;
+	private PROXY_BINDING_UPDATE_MOPERA_ATTACH_3G_POS_APN	= 198;
+	private PROXY_BINDING_UPDATE_MOPERA_ATTACH_3G_POS_PAP_PASS	= 281;
+	private PROXY_BINDING_UPDATE_MOPERA_ATTACH_POS_APN	= 198;
+	private PROXY_BINDING_UPDATE_MOPERA_ATTACH_POS_PAP_PASS	= 281;
+	private PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_APN	= 111;
+	private PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_HOME_NW_PREFIX	= 152;
+	private PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_USERADDR	= 193;
+	private PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_APN	= 112;
+	private PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_HOME_NW_PREFIX	= 147;
+	private PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_USERADDR	= 188;
+	private PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_APN	= 198;
+	private PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_PAP_PASS	= 281;
+	private PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_APN	= 112;
+	private PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_USERADDR	= 148;
+	private PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_APN	= 112;
+	private PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_USERADDR	= 168;
+	private PROXY_BINDING_UPDATE_YMODE_ATTACH_POS_APN	= 138;
+	private PROXY_BINDING_UPDATE_YMODE_DETACH_POS_APN	= 158;
+	private PROXY_BINDING_UPDATE_YMODE_DETACH_POS_HOME_NW_PREFIX	= 120;
+	private PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_APN	= 138;
+	private PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_USERADDR	= 120;
+
+    transit_execute( STATE_NOMAL );
+}
+
+
+
+in STATE_NOMAL {
+
+    #########################
+    # y-mode
+    case control( cmd_attach_ymode ){
+        setsigdata(PROXY_BINDING_UPDATE_YMODE_ATTACH,  set_i-mode_apn, PROXY_BINDING_UPDATE_YMODE_ATTACH_POS_APN,  1, 0xFF);
+        
+        send( PROXY_BINDING_UPDATE_YMODE_ATTACH );
+        setvariable(activate_kind, ACTIVATE_KIND_IMODE);
+    }
+    case control( cmd_detach_ymode ){
+        setsigdata(PROXY_BINDING_UPDATE_YMODE_DETACH,  set_i-mode_apn, PROXY_BINDING_UPDATE_YMODE_DETACH_POS_APN,  1, 0xFF);
+        
+        send(      PROXY_BINDING_UPDATE_YMODE_DETACH );
+    }
+    case control( cmd_sgwchange_ymode ){
+        setsigdata(PROXY_BINDING_UPDATE_YMODE_SGWCHANGE,  set_i-mode_apn, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_APN,  1, 0xFF);
+        if (active_ebi1_useraddr1 != 0) {
+            setvariable(addr_pos, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_USERADDR);
+            increase(addr_pos, 0); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr1, addr_pos, 4, 0xFFFFFFFF);
+            increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr2, addr_pos, 4, 0xFFFFFFFF);
+            increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr3, addr_pos, 4, 0xFFFFFFFF);
+            increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr4, addr_pos, 4, 0xFFFFFFFF);
+        }
+        send( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE );
+    }
+    
+    
+    #########################
+    # mopera 
+    case control( intra_tau_w_sgw ){
+        setvariable( intra_tau_with_sgwchg, 1 );
+        send( PROXY_BINDING_UPDATE_MOPERA_ATTACH );
+
+        setvariable( activate_kind, ACTIVATE_KIND_MOPERA );
+        setvariable( handoff_ind, HANDOFF_ATTACH );
+    }
+    case control( inter_tau_w_sgw ){
+        setvariable( inter_tau_with_sgwchg, 1 );
+        send( PROXY_BINDING_UPDATE_MOPERA_ATTACH_3G );
+
+        setvariable( activate_kind, ACTIVATE_KIND_MOPERA );
+        setvariable( handoff_ind, HANDOFF_ATTACH );
+    }
+
+    case control( cmd_attach_mopera ){
+        send( PROXY_BINDING_UPDATE_MOPERA_ATTACH );
+
+        setvariable( activate_kind, ACTIVATE_KIND_MOPERA );
+        setvariable( handoff_ind, HANDOFF_ATTACH );
+    }
+    case control( cmd_detach_mopera ){
+
+        ## retrieve valiables
+        if( active_ebi1_kind == ACTIVATE_KIND_MOPERA ){
+            setvariable( str_apn1, act_ebi1_str_apn1 );
+            setvariable( str_apn2, act_ebi1_str_apn2 );
+            setvariable( useraddrv4, act_ebi1_useraddrv4 );
+            setvariable( home_nw_prefix1, act_ebi1_home_nw_prefix1 );
+            setvariable( home_nw_prefix2, act_ebi1_home_nw_prefix2 );
+            setvariable( home_nw_prefix3, act_ebi1_home_nw_prefix3 );
+            setvariable( home_nw_prefix4, act_ebi1_home_nw_prefix4 );
+        }
+        if( active_ebi2_kind == ACTIVATE_KIND_MOPERA ){
+            setvariable( str_apn1, act_ebi2_str_apn1 );
+            setvariable( str_apn2, act_ebi2_str_apn2 );
+            setvariable( useraddrv4, act_ebi2_useraddrv4 );
+            setvariable( home_nw_prefix1, act_ebi2_home_nw_prefix1 );
+            setvariable( home_nw_prefix2, act_ebi2_home_nw_prefix2 );
+            setvariable( home_nw_prefix3, act_ebi2_home_nw_prefix3 );
+            setvariable( home_nw_prefix4, act_ebi2_home_nw_prefix4 );
+        }
+        if( active_ebi3_kind == ACTIVATE_KIND_MOPERA ){
+            setvariable( str_apn1, act_ebi3_str_apn1 );
+            setvariable( str_apn2, act_ebi3_str_apn2 );
+            setvariable( useraddrv4, act_ebi3_useraddrv4 );
+            setvariable( home_nw_prefix1, act_ebi3_home_nw_prefix1 );
+            setvariable( home_nw_prefix2, act_ebi3_home_nw_prefix2 );
+            setvariable( home_nw_prefix3, act_ebi3_home_nw_prefix3 );
+            setvariable( home_nw_prefix4, act_ebi3_home_nw_prefix4 );
+        }
+
+        ## Set APN
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, str_apn1, sig_pos, 3, 0xFFFFFF );
+        increase( sig_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, str_apn2, sig_pos, 3, 0xFFFFFF );
+
+        ## Set User Address
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_USERADDR );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, useraddrv4, sig_pos, 4, 0xFFFFFFFF );
+
+        ## Set IPv6 Home Network Prefix
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_HOME_NW_PREFIX );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, home_nw_prefix1, sig_pos, 4, 0xFFFFFFFF );
+        increase( sig_pos, 4 );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, home_nw_prefix2, sig_pos, 4, 0xFFFFFFFF );
+        increase( sig_pos, 4 );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, home_nw_prefix3, sig_pos, 4, 0xFFFFFFFF );
+        increase( sig_pos, 4 );
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_DETACH, home_nw_prefix4, sig_pos, 4, 0xFFFFFFFF );
+
+        send( PROXY_BINDING_UPDATE_MOPERA_DETACH );
+
+        setvariable( activate_kind, ACTIVATE_KIND_MOPERA );
+        setvariable( handoff_ind, HANDOFF_DETACH );
+    }
+    
+    case control( cmd_sgwchange_mopera ){
+        #### Not surport ####
+        if( active_ebi1_kind == ACTIVATE_KIND_MOPERA ){
+            setvariable( sig_pos, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_USERADDR );
+            setsigdata( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi1_useraddr1, sig_pos, 4, 0xFFFFFFFF);
+        }
+        send( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE );
+    }
+    
+    
+    #########################
+    # spmode
+    case control( cmd_attach_spmode ){
+
+        ## check multiple Spmode
+        if( active_ebi1_kind == ACTIVATE_KIND_SPMODE ){
+            isc_send( PCRF_P_1, SYNCHRO, 103, 1 );
+        }
+        if( active_ebi2_kind == ACTIVATE_KIND_SPMODE ){
+            isc_send( PCRF_P_1, SYNCHRO, 103, 2 );
+        }
+        if( active_ebi3_kind == ACTIVATE_KIND_SPMODE ){
+            isc_send( PCRF_P_1, SYNCHRO, 103, 3 );
+        }
+
+        ## send P.B.U
+        send( PROXY_BINDING_UPDATE_SPMODE_ATTACH );
+
+        setvariable(activate_kind, ACTIVATE_KIND_SPMODE);
+        setvariable( handoff_ind, HANDOFF_ATTACH );
+    }
+    case control( cmd_detach_spmode ){
+
+        ## retrieve valiables
+        if( active_ebi1_kind == ACTIVATE_KIND_SPMODE ){
+            setvariable( str_apn1, act_ebi1_str_apn1 );
+            setvariable( str_apn2, act_ebi1_str_apn2 );
+            setvariable( useraddrv4, act_ebi1_useraddrv4 );
+        }
+        if( active_ebi2_kind == ACTIVATE_KIND_SPMODE ){
+            setvariable( str_apn1, act_ebi2_str_apn1 );
+            setvariable( str_apn2, act_ebi2_str_apn2 );
+            setvariable( useraddrv4, act_ebi2_useraddrv4 );
+        }
+        if( active_ebi3_kind == ACTIVATE_KIND_SPMODE ){
+            setvariable( str_apn1, act_ebi3_str_apn1 );
+            setvariable( str_apn2, act_ebi3_str_apn2 );
+            setvariable( useraddrv4, act_ebi3_useraddrv4 );
+        }
+
+        ## Set APN
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, str_apn1, sig_pos, 3, 0xFFFFFF );
+        increase( sig_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, str_apn2, sig_pos, 3, 0xFFFFFF );
+
+        ## Set User Address
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_USERADDR );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, useraddrv4, sig_pos, 4, 0xFFFFFFFF );
+
+        send( PROXY_BINDING_UPDATE_SPMODE_DETACH );
+
+        setvariable(activate_kind, ACTIVATE_KIND_SPMODE);
+        setvariable( handoff_ind, HANDOFF_DETACH );
+    }
+    
+    case control( cmd_sgwchange_spmode ){
+        #### Not surport ####
+        if (active_ebi1_useraddr1 != 0) {
+            setsigdata( PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE, active_ebi1_useraddr1,
+                        PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_USERADDR, 4, 0xFFFFFFFF);
+        }
+        
+        send( PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE );
+    }
+
+
+    #########################
+    # isp
+    case control( cmd_attach_isp ){
+        send( PROXY_BINDING_UPDATE_ISP_ATTACH );
+
+        setvariable( activate_kind, ACTIVATE_KIND_ISP);
+        setvariable( handoff_ind, HANDOFF_ATTACH );
+    }
+    case control( cmd_detach_isp ){
+
+        ## retrieve valiables
+        if( active_ebi1_kind == ACTIVATE_KIND_ISP ){
+            setvariable( str_apn1, act_ebi1_str_apn1 );
+            setvariable( str_apn2, act_ebi1_str_apn2 );
+            setvariable( useraddrv4, act_ebi1_useraddrv4 );
+        }
+        if( active_ebi2_kind == ACTIVATE_KIND_ISP ){
+            setvariable( str_apn1, act_ebi2_str_apn1 );
+            setvariable( str_apn2, act_ebi2_str_apn2 );
+            setvariable( useraddrv4, act_ebi2_useraddrv4 );
+        }
+        if( active_ebi3_kind == ACTIVATE_KIND_ISP ){
+            setvariable( str_apn1, act_ebi3_str_apn1 );
+            setvariable( str_apn2, act_ebi3_str_apn2 );
+            setvariable( useraddrv4, act_ebi3_useraddrv4 );
+        }
+
+        ## Set APN
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_ISP_DETACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_ISP_DETACH, str_apn1, sig_pos, 3, 0xFFFFFF );
+        increase( sig_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_ISP_DETACH, str_apn2, sig_pos, 3, 0xFFFFFF );
+
+        ## Set User Address
+        setvariable( sig_pos, PROXY_BINDING_UPDATE_ISP_DETACH_POS_USERADDR );
+        setsigdata( PROXY_BINDING_UPDATE_ISP_DETACH, useraddrv4, sig_pos, 4, 0xFFFFFFFF );
+
+        send( PROXY_BINDING_UPDATE_ISP_DETACH );
+
+        setvariable( activate_kind, ACTIVATE_KIND_ISP);
+        setvariable( handoff_ind, HANDOFF_DETACH );
+    }
+    
+    case control( cmd_sgwchange_isp ){
+        #### Not surport ####
+        if (active_ebi1_useraddr1 != 0) {
+            setsigdata( PROXY_BINDING_UPDATE_ISP_SGWCHANGE, active_ebi1_useraddr1,
+                        PROXY_BINDING_UPDATE_ISP_SGWCHANGE_POS_USERADDR, 4, 0xFFFFFFFF);
+        }
+        
+        send( PROXY_BINDING_UPDATE_ISP_SGWCHANGE );
+    }
+
+
+    #########################
+    # Set APN
+    case control( set_apn_spmod1 ){
+        snap( "Set APN spmod1 (0x73706d6f6431)" );
+
+        setvariable( str_apn, 0x73706d );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_ATTACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE, str_apn, str_pos, 3, 0xFFFFFF );
+
+        setvariable( str_apn, 0x6f6431 );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_APN );
+        increase( str_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_ATTACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_APN );
+        increase( str_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_APN );
+        increase( str_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE, str_apn, str_pos, 3, 0xFFFFFF );
+
+        transit();
+    }
+    case control( set_apn_qpmode ){
+        snap( "Set APN qpmode (0x71706d6f6465)" );
+
+        setvariable( str_apn, 0x71706d );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_ATTACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_APN );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE, str_apn, str_pos, 3, 0xFFFFFF );
+
+        setvariable( str_apn, 0x6f6465 );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_APN );
+        increase( str_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_ATTACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_DETACH_POS_APN );
+        increase( str_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_DETACH, str_apn, str_pos, 3, 0xFFFFFF );
+        setvariable( str_pos, PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE_POS_APN );
+        increase( str_pos, 3 );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE, str_apn, str_pos, 3, 0xFFFFFF );
+
+        transit();
+    }
+
+
+    #########################
+    # set PAP password
+    case control( set_PAP_Pass_passwordn1 ){
+        ### "n1" : 0x6e31
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_ATTACH, 0x6e31,
+                    PROXY_BINDING_UPDATE_MOPERA_ATTACH_POS_PAP_PASS, 2, 0xFFFF );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_ATTACH, 0x6e31,
+                    PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_PAP_PASS, 2, 0xFFFF );
+    }
+    case control( set_PAP_Pass_password99 ){
+        ### "99" : 0x3939
+        setsigdata( PROXY_BINDING_UPDATE_MOPERA_ATTACH, 0x3939,
+                    PROXY_BINDING_UPDATE_MOPERA_ATTACH_POS_PAP_PASS, 2, 0xFFFF );
+        setsigdata( PROXY_BINDING_UPDATE_SPMODE_ATTACH, 0x3939,
+                    PROXY_BINDING_UPDATE_SPMODE_ATTACH_POS_PAP_PASS, 2, 0xFFFF );
+    }
+
+
+    #########################
+    # common
+    case control( cmd_detach_all ) {
+        if (active_ebi1_kind != 0) {
+            if (active_ebi1_kind == ACTIVATE_KIND_IMODE)  {
+                setsigdata(PROXY_BINDING_UPDATE_YMODE_DETACH,  active_ebi1_apn, PROXY_BINDING_UPDATE_YMODE_DETACH_POS_APN,  1, 0xFF);
+                send( PROXY_BINDING_UPDATE_YMODE_DETACH );  
+            }
+            if (active_ebi1_kind == ACTIVATE_KIND_MOPERA) {
+#                setvariable(temporary, PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_APN); increase(temporary, 5);
+#                setsigdata(            PROXY_BINDING_UPDATE_MOPERA_DETACH, active_ebi1_apn, temporary, 1, 0xFF);
+                send( PROXY_BINDING_UPDATE_MOPERA_DETACH ); 
+            }
+            setvariable(active_ebi1_kind, 0);
+        }
+        if (active_ebi2_kind != 0) {
+            if (active_ebi2_kind == ACTIVATE_KIND_IMODE)  { 
+                setsigdata(PROXY_BINDING_UPDATE_YMODE_DETACH,  active_ebi2_apn, PROXY_BINDING_UPDATE_YMODE_DETACH_POS_APN,  1, 0xFF);
+                send( PROXY_BINDING_UPDATE_YMODE_DETACH );  
+            }
+            if (active_ebi2_kind == ACTIVATE_KIND_MOPERA) { 
+#                setvariable(temporary, PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_APN); increase(temporary, 5);
+#                setsigdata(            PROXY_BINDING_UPDATE_MOPERA_DETACH, active_ebi2_apn, temporary, 1, 0xFF);
+                send( PROXY_BINDING_UPDATE_MOPERA_DETACH ); 
+            }
+            setvariable(active_ebi2_kind, 0);
+        }
+        if (active_ebi3_kind != 0) {
+            if (active_ebi3_kind == ACTIVATE_KIND_IMODE)  { 
+                setsigdata(PROXY_BINDING_UPDATE_YMODE_DETACH,  active_ebi3_apn, PROXY_BINDING_UPDATE_YMODE_DETACH_POS_APN,  1, 0xFF);
+                send( PROXY_BINDING_UPDATE_YMODE_DETACH );  
+            }
+            if (active_ebi3_kind == ACTIVATE_KIND_MOPERA) { 
+#                setvariable(temporary, PROXY_BINDING_UPDATE_MOPERA_DETACH_POS_APN); increase(temporary, 5);
+#                setsigdata(            PROXY_BINDING_UPDATE_MOPERA_DETACH, active_ebi3_apn, temporary, 1, 0xFF);
+                send( PROXY_BINDING_UPDATE_MOPERA_DETACH ); 
+            }
+            setvariable(active_ebi3_kind, 0);
+        }
+    }
+    
+    
+    
+    case receive(  PROXY_BINDING_ACKNOWLEDGEMENT ){
+        snap("recv PROXY_BINDING_ACKNOWLEDGEMENT");
+        
+        getsigdata(status, 46, 1, 0xFF);
+        if( status != 0x00 ){
+            snap("Status Code NG!!!");
+            transit();
+            
+        }
+        snap("Status Code Accept");
+        
+        if(intra_tau_with_sgwchg == 1){
+
+            ## get APN
+            setvariable( sig_pos, 111 ); 
+            getsigdata( str_apn1, sig_pos, 3, 0xFFFFFF); 
+            increase( sig_pos, 3 );
+            getsigdata( str_apn2, sig_pos, 3, 0xFFFFFF); 
+
+            ## get Home Network Prefix option
+            setvariable( sig_pos, 152 ); 
+            getsigdata( home_nw_prefix1, sig_pos, 4, 0xFFFFFFFF); 
+            increase( sig_pos, 4 );
+            getsigdata( home_nw_prefix2, sig_pos, 4, 0xFFFFFFFF); 
+            increase( sig_pos, 4 );
+            getsigdata( home_nw_prefix3, sig_pos, 4, 0xFFFFFFFF); 
+            increase( sig_pos, 4 );
+            getsigdata( home_nw_prefix4, sig_pos, 4, 0xFFFFFFFF); 
+
+            ## get UEIPv4
+            setvariable( sig_pos, 216 ); 
+            getsigdata( useraddrv4, sig_pos, 4, 0xFFFFFFFF); 
+
+            ## get GRE Key
+            setvariable( sig_pos, 232 ); 
+            getsigdata( gre_key, sig_pos, 4, 0xFFFFFFFF); 
+
+            ## set
+            setvariable( active_ebi1_kind, activate_kind); 
+            setvariable( act_ebi1_str_apn1, str_apn1 );
+            setvariable( act_ebi1_str_apn2, str_apn2 );
+            setvariable( act_ebi1_useraddrv4, useraddrv4 );
+            setvariable( act_ebi1_home_nw_prefix1, home_nw_prefix1 );
+            setvariable( act_ebi1_home_nw_prefix2, home_nw_prefix2 );
+            setvariable( act_ebi1_home_nw_prefix3, home_nw_prefix3 );
+            setvariable( act_ebi1_home_nw_prefix4, home_nw_prefix4 );
+            setvariable( act_ebi1_gre_key, gre_key );
+
+            isc_send(MME1, SYNCHRO, 710, active_ebi1_kind);         snap("active_ebi1_kind", active_ebi1_kind);
+            isc_send(MME1, SYNCHRO, 711, act_ebi1_str_apn1);        snap("act_ebi1_str_apn1",act_ebi1_str_apn1 );
+            isc_send(MME1, SYNCHRO, 712, act_ebi1_str_apn2);        snap("act_ebi1_str_apn2",act_ebi1_str_apn2 );
+            isc_send(MME1, SYNCHRO, 713, act_ebi1_useraddrv4);      snap("act_ebi1_useraddrv4",act_ebi1_useraddrv4 );
+            isc_send(MME1, SYNCHRO, 714, act_ebi1_home_nw_prefix1); snap("act_ebi1_home_nw_prefix1",act_ebi1_home_nw_prefix1 );
+            isc_send(MME1, SYNCHRO, 715, act_ebi1_home_nw_prefix2); snap("act_ebi1_home_nw_prefix2",act_ebi1_home_nw_prefix2 );
+            isc_send(MME1, SYNCHRO, 716, act_ebi1_home_nw_prefix3); snap("act_ebi1_home_nw_prefix3",act_ebi1_home_nw_prefix3 );
+            isc_send(MME1, SYNCHRO, 717, act_ebi1_home_nw_prefix4); snap("act_ebi1_home_nw_prefix4",act_ebi1_home_nw_prefix4 );
+            isc_send(MME1, SYNCHRO, 718, act_ebi1_gre_key);         snap("act_ebi1_gre_key",act_ebi1_gre_key );
+            isc_send(MME1, SYNCHRO, 750);
+           
+        
+        }
+
+        if(inter_tau_with_sgwchg == 1){
+
+            ## get APN
+            setvariable( sig_pos, 111 ); 
+            getsigdata( str_apn1, sig_pos, 3, 0xFFFFFF); 
+            increase( sig_pos, 3 );
+            getsigdata( str_apn2, sig_pos, 3, 0xFFFFFF); 
+
+            ## get Home Network Prefix option
+            setvariable( sig_pos, 152 ); 
+            getsigdata( home_nw_prefix1, sig_pos, 4, 0xFFFFFFFF); 
+            increase( sig_pos, 4 );
+            getsigdata( home_nw_prefix2, sig_pos, 4, 0xFFFFFFFF); 
+            increase( sig_pos, 4 );
+            getsigdata( home_nw_prefix3, sig_pos, 4, 0xFFFFFFFF); 
+            increase( sig_pos, 4 );
+            getsigdata( home_nw_prefix4, sig_pos, 4, 0xFFFFFFFF); 
+
+            ## get UEIPv4
+            setvariable( sig_pos, 216 ); 
+            getsigdata( useraddrv4, sig_pos, 4, 0xFFFFFFFF); 
+
+            ## get GRE Key
+            setvariable( sig_pos, 232 ); 
+            getsigdata( gre_key, sig_pos, 4, 0xFFFFFFFF); 
+
+            ## set
+            setvariable( active_ebi1_kind, activate_kind); 
+            setvariable( act_ebi1_str_apn1, str_apn1 );
+            setvariable( act_ebi1_str_apn2, str_apn2 );
+            setvariable( act_ebi1_useraddrv4, useraddrv4 );
+            setvariable( act_ebi1_home_nw_prefix1, home_nw_prefix1 );
+            setvariable( act_ebi1_home_nw_prefix2, home_nw_prefix2 );
+            setvariable( act_ebi1_home_nw_prefix3, home_nw_prefix3 );
+            setvariable( act_ebi1_home_nw_prefix4, home_nw_prefix4 );
+            setvariable( act_ebi1_gre_key, gre_key );
+
+            isc_send(MME1, SYNCHRO, 710, active_ebi1_kind);         snap("active_ebi1_kind", active_ebi1_kind);
+            isc_send(MME1, SYNCHRO, 711, act_ebi1_str_apn1);        snap("act_ebi1_str_apn1",act_ebi1_str_apn1 );
+            isc_send(MME1, SYNCHRO, 712, act_ebi1_str_apn2);        snap("act_ebi1_str_apn2",act_ebi1_str_apn2 );
+            isc_send(MME1, SYNCHRO, 713, act_ebi1_useraddrv4);      snap("act_ebi1_useraddrv4",act_ebi1_useraddrv4 );
+            isc_send(MME1, SYNCHRO, 714, act_ebi1_home_nw_prefix1); snap("act_ebi1_home_nw_prefix1",act_ebi1_home_nw_prefix1 );
+            isc_send(MME1, SYNCHRO, 715, act_ebi1_home_nw_prefix2); snap("act_ebi1_home_nw_prefix2",act_ebi1_home_nw_prefix2 );
+            isc_send(MME1, SYNCHRO, 716, act_ebi1_home_nw_prefix3); snap("act_ebi1_home_nw_prefix3",act_ebi1_home_nw_prefix3 );
+            isc_send(MME1, SYNCHRO, 717, act_ebi1_home_nw_prefix4); snap("act_ebi1_home_nw_prefix4",act_ebi1_home_nw_prefix4 );
+            isc_send(MME1, SYNCHRO, 718, act_ebi1_gre_key);         snap("act_ebi1_gre_key",act_ebi1_gre_key );
+            isc_send(MME1, SYNCHRO, 750);
+           
+        
+        }
+
+
+
+        ##############################
+        # case of ATTACH
+        if( handoff_ind == HANDOFF_ATTACH ){
+
+            ##############################
+            # get variables
+            if (activate_kind == ACTIVATE_KIND_IMODE)  {
+                getsigdata(pgw_teid_c_tmp, 224, 4, 0xFFFFFFFF); 
+                setvariable(addr_pos, 160); 
+            }
+            if (activate_kind == ACTIVATE_KIND_MOPERA) {
+
+                ## get APN
+                setvariable( sig_pos, 111 ); 
+                getsigdata( str_apn1, sig_pos, 3, 0xFFFFFF); 
+                increase( sig_pos, 3 );
+                getsigdata( str_apn2, sig_pos, 3, 0xFFFFFF); 
+    
+                ## get Home Network Prefix option
+                setvariable( sig_pos, 146 ); 
+                getsigdata( home_nw_prefix1, sig_pos, 4, 0xFFFFFFFF); 
+                increase( sig_pos, 4 );
+                getsigdata( home_nw_prefix2, sig_pos, 4, 0xFFFFFFFF); 
+                increase( sig_pos, 4 );
+                getsigdata( home_nw_prefix3, sig_pos, 4, 0xFFFFFFFF); 
+                increase( sig_pos, 4 );
+                getsigdata( home_nw_prefix4, sig_pos, 4, 0xFFFFFFFF); 
+
+                ## get UEIPv4
+                setvariable( sig_pos, 188 ); 
+                getsigdata( useraddrv4, sig_pos, 4, 0xFFFFFFFF); 
+    
+                ## get GRE Key
+                setvariable( sig_pos, 204 ); 
+                getsigdata( gre_key, sig_pos, 4, 0xFFFFFFFF); 
+            }
+            if (activate_kind == ACTIVATE_KIND_SPMODE) {
+    
+                ## get APN
+                setvariable( sig_pos, 111 ); 
+                getsigdata( str_apn1, sig_pos, 3, 0xFFFFFF); 
+                increase( sig_pos, 3 );
+                getsigdata( str_apn2, sig_pos, 3, 0xFFFFFF); 
+    
+                ## get UEIPv4
+                setvariable( sig_pos, 168 ); 
+                getsigdata( useraddrv4, sig_pos, 4, 0xFFFFFFFF); 
+    
+                ## get GRE Key
+                setvariable( sig_pos, 184 ); 
+                getsigdata( gre_key, sig_pos, 4, 0xFFFFFFFF); 
+            }
+            if (activate_kind == ACTIVATE_KIND_ISP) {
+    
+                ## get APN
+                setvariable( sig_pos, 111 ); 
+                getsigdata( str_apn1, sig_pos, 3, 0xFFFFFF); 
+                increase( sig_pos, 3 );
+                getsigdata( str_apn2, sig_pos, 3, 0xFFFFFF); 
+    
+                ## get UEIPv4
+                setvariable( sig_pos, 168 ); 
+                getsigdata( useraddrv4, sig_pos, 4, 0xFFFFFFFF); 
+    
+                ## get GRE Key
+                setvariable( sig_pos, 184 ); 
+                getsigdata( gre_key, sig_pos, 4, 0xFFFFFFFF); 
+            }
+            
+            
+            ###################################
+            # store variables per connection
+            if (active_ebi1_kind == 0) { 
+            
+                setvariable( active_ebi1_kind, activate_kind); 
+                setvariable( act_ebi1_str_apn1, str_apn1 );
+                setvariable( act_ebi1_str_apn2, str_apn2 );
+                setvariable( act_ebi1_useraddrv4, useraddrv4 );
+                setvariable( act_ebi1_home_nw_prefix1, home_nw_prefix1 );
+                setvariable( act_ebi1_home_nw_prefix2, home_nw_prefix2 );
+                setvariable( act_ebi1_home_nw_prefix3, home_nw_prefix3 );
+                setvariable( act_ebi1_home_nw_prefix4, home_nw_prefix4 );
+                setvariable( act_ebi1_gre_key, gre_key );
+                
+                transit();
+            }
+            if (active_ebi2_kind == 0) { 
+            
+                setvariable( active_ebi2_kind, activate_kind); 
+                setvariable( act_ebi2_str_apn1, str_apn1 );
+                setvariable( act_ebi2_str_apn2, str_apn2 );
+                setvariable( act_ebi2_useraddrv4, useraddrv4 );
+                setvariable( act_ebi2_home_nw_prefix1, home_nw_prefix1 );
+                setvariable( act_ebi2_home_nw_prefix2, home_nw_prefix2 );
+                setvariable( act_ebi2_home_nw_prefix3, home_nw_prefix3 );
+                setvariable( act_ebi2_home_nw_prefix4, home_nw_prefix4 );
+                setvariable( act_ebi2_gre_key, gre_key );
+                
+                transit();
+            }
+            if (active_ebi3_kind == 0) { 
+            
+                setvariable( active_ebi3_kind, activate_kind); 
+                setvariable( act_ebi3_str_apn1, str_apn1 );
+                setvariable( act_ebi3_str_apn2, str_apn2 );
+                setvariable( act_ebi3_useraddrv4, useraddrv4 );
+                setvariable( act_ebi3_home_nw_prefix1, home_nw_prefix1 );
+                setvariable( act_ebi3_home_nw_prefix2, home_nw_prefix2 );
+                setvariable( act_ebi3_home_nw_prefix3, home_nw_prefix3 );
+                setvariable( act_ebi3_home_nw_prefix4, home_nw_prefix4 );
+                setvariable( act_ebi3_gre_key, gre_key );
+                
+                transit();
+            }
+        }
+
+        ##############################
+        # case of DETACH
+        if( handoff_ind == HANDOFF_DETACH ){
+
+            ###################################
+            # initialize variables
+            if( active_ebi1_kind == activate_kind ){
+                setvariable( active_ebi1_kind, 0 );
+                transit();
+            }
+            if( active_ebi2_kind == activate_kind ){
+                setvariable( active_ebi2_kind, 0 );
+                transit();
+            }
+            if( active_ebi3_kind == activate_kind ){
+                setvariable( active_ebi3_kind, 0 );
+                transit();
+            }
+        }
+    }
+    
+
+    case receive(  BINDING_REVOCATION_INDICATION ){
+        snap("recv BINDING_REVOCATION_INDICATION");
+
+        ################################
+        ## get call kind
+        ##     m"op"era = 0x6d"6f70"657261
+        ##     s"pm"ode = 0x73"706d"6f6465
+        ##     i"sp"001 = 0x69"7370"303031
+        setvariable( sig_pos, 111 );
+        getsigdata( str_apn1, sig_pos, 3, 0x00FFFF);
+        if( str_apn1 == 0x6f70 ){
+            setvariable( activate_kind, ACTIVATE_KIND_MOPERA );
+        }
+        if( str_apn1 == 0x706d ){
+            setvariable( activate_kind, ACTIVATE_KIND_SPMODE );
+        }
+        if( str_apn1 == 0x7370 ){
+            setvariable( activate_kind, ACTIVATE_KIND_ISP );
+        }
+
+        ################################
+        ## retrieve value
+        if( active_ebi1_kind == activate_kind ){
+            setvariable( str_apn1, act_ebi1_str_apn1 );
+            setvariable( str_apn2, act_ebi1_str_apn2 );
+            setvariable( useraddrv4, act_ebi1_useraddrv4 );
+            setvariable( home_nw_prefix1, act_ebi1_home_nw_prefix1 );
+            setvariable( home_nw_prefix2, act_ebi1_home_nw_prefix2 );
+            setvariable( home_nw_prefix3, act_ebi1_home_nw_prefix3 );
+            setvariable( home_nw_prefix4, act_ebi1_home_nw_prefix4 );
+        }
+        if( active_ebi2_kind == activate_kind ){
+            setvariable( str_apn1, act_ebi2_str_apn1 );
+            setvariable( str_apn2, act_ebi2_str_apn2 );
+            setvariable( useraddrv4, act_ebi2_useraddrv4 );
+            setvariable( home_nw_prefix1, act_ebi2_home_nw_prefix1 );
+            setvariable( home_nw_prefix2, act_ebi2_home_nw_prefix2 );
+            setvariable( home_nw_prefix3, act_ebi2_home_nw_prefix3 );
+            setvariable( home_nw_prefix4, act_ebi2_home_nw_prefix4 );
+        }
+        if( active_ebi3_kind == activate_kind ){
+            setvariable( str_apn1, act_ebi3_str_apn1 );
+            setvariable( str_apn2, act_ebi3_str_apn2 );
+            setvariable( useraddrv4, act_ebi3_useraddrv4 );
+            setvariable( home_nw_prefix1, act_ebi3_home_nw_prefix1 );
+            setvariable( home_nw_prefix2, act_ebi3_home_nw_prefix2 );
+            setvariable( home_nw_prefix3, act_ebi3_home_nw_prefix3 );
+            setvariable( home_nw_prefix4, act_ebi3_home_nw_prefix4 );
+        }
+
+        ################################
+        ## send Binding Revocation Ack
+        if( activate_kind == ACTIVATE_KIND_MOPERA ){
+            ## Set APN
+            setvariable( sig_pos, BINDING_REVOCATION_ACK_V4V6_POS_APN );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, str_apn1, sig_pos, 3, 0xFFFFFF );
+            increase( sig_pos, 3 );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, str_apn2, sig_pos, 3, 0xFFFFFF );
+    
+            ## Set User Address
+            setvariable( sig_pos, BINDING_REVOCATION_ACK_V4V6_POS_USERADDR );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, useraddrv4, sig_pos, 4, 0xFFFFFFFF );
+
+            ## Set IPv6 Home Network Prefix
+            setvariable( sig_pos, BINDING_REVOCATION_ACK_V4V6_POS_HOME_NW_PREFIX );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, home_nw_prefix1, sig_pos, 4, 0xFFFFFFFF );
+            increase( sig_pos, 4 );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, home_nw_prefix2, sig_pos, 4, 0xFFFFFFFF );
+            increase( sig_pos, 4 );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, home_nw_prefix3, sig_pos, 4, 0xFFFFFFFF );
+            increase( sig_pos, 4 );
+            setsigdata( BINDING_REVOCATION_ACK_V4V6, home_nw_prefix4, sig_pos, 4, 0xFFFFFFFF );
+            
+            send( BINDING_REVOCATION_ACK_V4V6 );
+
+        } else {
+
+            ## Set APN
+            setvariable( sig_pos, BINDING_REVOCATION_ACK_V4_POS_APN );
+            setsigdata( BINDING_REVOCATION_ACK_V4, str_apn1, sig_pos, 3, 0xFFFFFF );
+            increase( sig_pos, 3 );
+            setsigdata( BINDING_REVOCATION_ACK_V4, str_apn2, sig_pos, 3, 0xFFFFFF );
+    
+            ## Set User Address
+            setvariable( sig_pos, BINDING_REVOCATION_ACK_V4_POS_USERADDR );
+            setsigdata( BINDING_REVOCATION_ACK_V4, useraddrv4, sig_pos, 4, 0xFFFFFFFF );
+    
+            send( BINDING_REVOCATION_ACK_V4 );
+        }
+
+        ################################
+        ## initialize
+        if( active_ebi1_kind == activate_kind ){
+            setvariable( active_ebi1_kind, 0 );
+            transit();
+        }
+        if( active_ebi2_kind == activate_kind ){
+            setvariable( active_ebi2_kind, 0 );
+            transit();
+        }
+        if( active_ebi3_kind == activate_kind ){
+            setvariable( active_ebi3_kind, 0 );
+            transit();
+        }
+    }
+
+    
+    
+    #######################################################################
+    # MME Intaraction
+    
+    ##############################################################
+    #  TAU w S-GW (Source)   SHIFT  S-GW1 to MME1 Intaraction
+    #
+    case isc_receive(SYNCHRO, 500) {
+        if (active_ebi1_kind != 0) { 
+            isc_send(MME1, SYNCHRO, 510, active_ebi1_kind); 
+            isc_send(MME1, SYNCHRO, 513, pgw_teid_c1); 
+            isc_send(MME1, SYNCHRO, 560, active_ebi1_useraddr1); 
+            isc_send(MME1, SYNCHRO, 561, active_ebi1_useraddr2); 
+            isc_send(MME1, SYNCHRO, 562, active_ebi1_useraddr3); 
+            isc_send(MME1, SYNCHRO, 563, active_ebi1_useraddr4); 
+            isc_send(MME1, SYNCHRO, 590, active_ebi1_apn); 
+        }
+        if (active_ebi2_kind != 0) { 
+            isc_send(MME1, SYNCHRO, 511, active_ebi2_kind); 
+            isc_send(MME1, SYNCHRO, 514, pgw_teid_c2); 
+            isc_send(MME1, SYNCHRO, 570, active_ebi2_useraddr1); 
+            isc_send(MME1, SYNCHRO, 571, active_ebi2_useraddr2); 
+            isc_send(MME1, SYNCHRO, 572, active_ebi2_useraddr3); 
+            isc_send(MME1, SYNCHRO, 573, active_ebi2_useraddr4); 
+            isc_send(MME1, SYNCHRO, 591, active_ebi2_apn); 
+        }
+        if (active_ebi3_kind != 0) { 
+            isc_send(MME1, SYNCHRO, 512, active_ebi3_kind); 
+            isc_send(MME1, SYNCHRO, 515, pgw_teid_c3); 
+            isc_send(MME1, SYNCHRO, 580, active_ebi3_useraddr1); 
+            isc_send(MME1, SYNCHRO, 581, active_ebi3_useraddr2); 
+            isc_send(MME1, SYNCHRO, 582, active_ebi3_useraddr3); 
+            isc_send(MME1, SYNCHRO, 583, active_ebi3_useraddr4); 
+            isc_send(MME1, SYNCHRO, 592, active_ebi3_apn); 
+        }
+        isc_send(MME1, SYNCHRO, 520);
+        
+        setvariable(active_ebi1_kind, 0);
+        setvariable(active_ebi2_kind, 0);
+        setvariable(active_ebi3_kind, 0);
+        setvariable(pgw_teid_c1, 0);
+        setvariable(pgw_teid_c2, 0);
+        setvariable(pgw_teid_c3, 0);
+    }
+    
+    
+    ##############################################################
+    #  TAU w S-GW (Target)   SHIFT  MME1 to S-GW1 Intaraction
+    #
+    case control( cmd_sgwchange_all ) 
+    case control( inter_rat_ho_w_sgw_indirect ) {
+        isc_send(SGSN1, SYNCHRO, 200, active_ebi1_kind);
+	}
+    case isc_receive (SYNCHRO, 210, active_ebi1_kind) { snap("ebi1 kind receive from MME1", active_ebi1_kind); }
+    case isc_receive (SYNCHRO, 211, active_ebi2_kind) { snap("ebi2 kind receive from MME1", active_ebi2_kind); }
+    case isc_receive (SYNCHRO, 212, active_ebi3_kind) { snap("ebi3 kind receive from MME1", active_ebi3_kind); }
+    case isc_receive (SYNCHRO, 213, pgw_teid_c1)      { snap("pgw_teid_c receive from MME1", pgw_teid_c1); }
+    case isc_receive (SYNCHRO, 214, pgw_teid_c2)      { snap("pgw_teid_c receive from MME1", pgw_teid_c2); }
+    case isc_receive (SYNCHRO, 215, pgw_teid_c3)      { snap("pgw_teid_c receive from MME1", pgw_teid_c3); }
+    case isc_receive (SYNCHRO, 260, active_ebi1_useraddr1) { snap("ebi1 useraddr receive from MME1", active_ebi1_useraddr1); }
+    case isc_receive (SYNCHRO, 261, active_ebi1_useraddr2) { }
+    case isc_receive (SYNCHRO, 262, active_ebi1_useraddr3) {}
+    case isc_receive (SYNCHRO, 263, active_ebi1_useraddr4) {}
+    case isc_receive (SYNCHRO, 264, active_ebi1_useraddr1_ipv6) {snap("ebi1 IPv6 useraddr receive from MME1", active_ebi1_useraddr1_ipv6);}
+    case isc_receive (SYNCHRO, 270, active_ebi2_useraddr1) { snap("ebi2 useraddr receive from MME1", active_ebi2_useraddr1); }
+    case isc_receive (SYNCHRO, 271, active_ebi2_useraddr2) {}
+    case isc_receive (SYNCHRO, 272, active_ebi2_useraddr3) {}
+    case isc_receive (SYNCHRO, 273, active_ebi2_useraddr4) {}
+    case isc_receive (SYNCHRO, 280, active_ebi3_useraddr1) { snap("ebi3 useraddr receive from MME1", active_ebi3_useraddr1); }
+    case isc_receive (SYNCHRO, 281, active_ebi3_useraddr2) {}
+    case isc_receive (SYNCHRO, 282, active_ebi3_useraddr3) {}
+    case isc_receive (SYNCHRO, 283, active_ebi3_useraddr4) {}
+    case isc_receive (SYNCHRO, 290, active_ebi1_apn) { snap("ebi1 apn character receive from MME1", active_ebi1_apn); }
+    case isc_receive (SYNCHRO, 291, active_ebi2_apn) { snap("ebi2 apn character receive from MME1", active_ebi2_apn); }
+    case isc_receive (SYNCHRO, 292, active_ebi3_apn) { snap("ebi3 apn character receive from MME1", active_ebi3_apn); }
+    
+    case control( cmd_sgwchange_all_manual )
+    case isc_receive(SYNCHRO, 220) {
+        transit_execute( STATE_TAU_WITH_SGWCHG );
+    }    
+    
+}
+
+in STATE_TAU_WITH_SGWCHG {
+    case execution() {
+        if (set_pgw_giji == 0){
+        if (active_ebi1_kind != 0) {
+            if (active_ebi1_kind == ACTIVATE_KIND_IMODE)  { 
+                setvariable(addr_pos, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_USERADDR);
+                increase(addr_pos, 0); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr1, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr2, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr3, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi1_useraddr4, addr_pos, 4, 0xFFFFFFFF);
+                setsigdata(PROXY_BINDING_UPDATE_YMODE_SGWCHANGE,  active_ebi1_apn, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_APN,  1, 0xFF);
+                send( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE );
+            }
+            if (active_ebi1_kind == ACTIVATE_KIND_MOPERA) { 
+                setsigdata( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi1_useraddr1, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_USERADDR, 4, 0xFFFFFFFF);
+#                setvariable(temporary, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_APN); increase(temporary, 5);
+#                setsigdata(            PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi1_apn, temporary, 1, 0xFF);
+                setsigdata( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi1_useraddr1_ipv6, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_HOME_NW_PREFIX, 4, 0xFFFFFFFF);
+                send( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE ); 
+            }
+        }
+        if (active_ebi2_kind != 0) {
+            if (active_ebi2_kind == ACTIVATE_KIND_IMODE)  { 
+                setvariable(addr_pos, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_USERADDR);
+                increase(addr_pos, 0); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi2_useraddr1, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi2_useraddr2, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi2_useraddr3, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi2_useraddr4, addr_pos, 4, 0xFFFFFFFF);
+                setsigdata(PROXY_BINDING_UPDATE_YMODE_SGWCHANGE,  active_ebi2_apn, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_APN,  1, 0xFF);
+                send( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE );  
+            }
+            if (active_ebi2_kind == ACTIVATE_KIND_MOPERA) { 
+                setsigdata( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi2_useraddr1, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_USERADDR, 4, 0xFFFFFFFF);
+#                setvariable(temporary, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_APN); increase(temporary, 5);
+#                setsigdata(            PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi2_apn, temporary, 1, 0xFF);
+                send( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE ); 
+            }
+        }
+        if (active_ebi3_kind != 0) {
+            if (active_ebi3_kind == ACTIVATE_KIND_IMODE)  { 
+                setvariable(addr_pos, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_USERADDR);
+                increase(addr_pos, 0); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi3_useraddr1, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi3_useraddr2, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi3_useraddr3, addr_pos, 4, 0xFFFFFFFF);
+                increase(addr_pos, 4); setsigdata( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE, active_ebi3_useraddr4, addr_pos, 4, 0xFFFFFFFF);
+                setsigdata(PROXY_BINDING_UPDATE_YMODE_SGWCHANGE,  active_ebi3_apn, PROXY_BINDING_UPDATE_YMODE_SGWCHANGE_POS_APN,  1, 0xFF);
+                send( PROXY_BINDING_UPDATE_YMODE_SGWCHANGE );  
+            }
+            if (active_ebi3_kind == ACTIVATE_KIND_MOPERA) { 
+                setsigdata( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi3_useraddr1, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_USERADDR, 4, 0xFFFFFFFF);
+#                setvariable(temporary, PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE_POS_APN); increase(temporary, 5);
+#                setsigdata(            PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE, active_ebi3_apn, temporary, 1, 0xFF);
+                send( PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE ); 
+            }
+        }
+        }
+        start_timer(wait_source_sgw_delete);
+    }
+    case expiry(wait_source_sgw_delete) {
+        isc_send(SGSN1, SYNCHRO, 250);
+        snap("SEND ISC of DELETE SESSION Old S-GW  to MME1");
+        
+        transit(STATE_NOMAL);
+    }
+    
+    
+    case receive(  PROXY_BINDING_ACKNOWLEDGEMENT ){
+        getsigdata(status, 46, 1, 0xFF);
+        if (status != 0x00) {
+            snap("Status Code NG!!!");
+            transit();
+        }
+        
+        ### do nothing
+    }
+}
+
+
+
+
+in ANY_STATE {
+    case kill(){
+        transit(NULL_STATE);
+    }
+    
+    # Manual Variable Setting
+    case control( manset_active_ebi1_kind ) { setvariable( active_ebi1_kind, manset_active_ebi1_kind ); }
+    case control( manset_active_ebi1_apn  ) { setvariable( active_ebi1_apn, manset_active_ebi1_apn ); }
+        case control( manset_pgw_teid_c1      ) { setvariable( pgw_teid_c1, manset_pgw_teid_c1 ); }
+    case control( manset_active_ebi1_useraddr1  ) { setvariable( active_ebi1_useraddr1, manset_active_ebi1_useraddr1 ); }
+    case control( manset_active_ebi1_useraddr2  ) { setvariable( active_ebi1_useraddr2, manset_active_ebi1_useraddr2 ); }
+    case control( manset_active_ebi1_useraddr3  ) { setvariable( active_ebi1_useraddr3, manset_active_ebi1_useraddr3 ); }
+    case control( manset_active_ebi1_useraddr4  ) { setvariable( active_ebi1_useraddr4, manset_active_ebi1_useraddr4 ); }
+    
+    case control( manset_active_ebi2_kind ) { setvariable( active_ebi2_kind, manset_active_ebi2_kind ); }
+    case control( manset_active_ebi2_apn  ) { setvariable( active_ebi2_apn, manset_active_ebi2_apn ); }
+        case control( manset_pgw_teid_c2      ) { setvariable( pgw_teid_c2, manset_pgw_teid_c2 ); }
+    case control( manset_active_ebi2_useraddr1  ) { setvariable( active_ebi2_useraddr1, manset_active_ebi2_useraddr1 ); }
+    case control( manset_active_ebi2_useraddr2  ) { setvariable( active_ebi2_useraddr2, manset_active_ebi2_useraddr2 ); }
+    case control( manset_active_ebi2_useraddr3  ) { setvariable( active_ebi2_useraddr3, manset_active_ebi2_useraddr3 ); }
+    case control( manset_active_ebi2_useraddr4  ) { setvariable( active_ebi2_useraddr4, manset_active_ebi2_useraddr4 ); }
+
+    case control( manset_active_ebi3_kind ) { setvariable( active_ebi3_kind, manset_active_ebi3_kind ); }
+    case control( manset_active_ebi3_apn  ) { setvariable( active_ebi3_apn, manset_active_ebi3_apn ); }
+        case control( manset_pgw_teid_c3      ) { setvariable( pgw_teid_c3, manset_pgw_teid_c3 ); }
+    case control( manset_active_ebi3_useraddr1  ) { setvariable( active_ebi3_useraddr1, manset_active_ebi3_useraddr1 ); }
+    case control( manset_active_ebi3_useraddr2  ) { setvariable( active_ebi3_useraddr2, manset_active_ebi3_useraddr2 ); }
+    case control( manset_active_ebi3_useraddr3  ) { setvariable( active_ebi3_useraddr3, manset_active_ebi3_useraddr3 ); }
+    case control( manset_active_ebi3_useraddr4  ) { setvariable( active_ebi3_useraddr4, manset_active_ebi3_useraddr4 ); }    
+}
+
+
+
+
+
+
+
+
+
+########################################################################
+#  PDU Definitions
+########################################################################
+
+#=================================================================================
+pdu PROXY_BINDING_UPDATE_YMODE_ATTACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    01 05 00000000 00 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00                    # Reserved
+        00 00000000 00000000 00000000 00000000    # Prefixlen / IPv6 Home Network Prefix
+    
+    ### Service Selection (No Pad)
+    14 26
+        792d6d6f 64652e64 6f636f6d 6f2e6e65 # "y-mode.docomo.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        2e6a702e 6d6e6330 31302e6d 63633434
+        302e6770 7273
+    
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        01    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 04 00000000 # padding
+    ### Link-Local Address (8n+6)
+    1a 10        # Length
+        00000000 00000000 00000000 00000000
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000001    # downlink GRE Key
+    
+    01 00 # padding
+    ### PCO :3GPP-Vendor-Specific(4n+2)
+    13 36
+        000028af# Vendor-Id
+        01 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+            80    # ext
+            ## PAP
+            c023
+            16 01 00
+            0016
+                06 757365726e31
+                0a 70617373776f72646e31
+            ## DNSv6 Address
+            0003 00
+            ## TIP
+            f001 06 
+                01 0006      # FOMA端末識別
+                    01 03 45 #   FOMA外 / Dual / pad / pad / pad / U着 / PoC / 拡U着
+            ## DOCOMO EXTENSION
+            f002 07
+                0b 05 1234561212 # IMEISV
+    
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+    
+    00 # padding
+}
+
+
+
+
+#=================================================================================
+pdu PROXY_BINDING_UPDATE_YMODE_SGWCHANGE
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    01 05 00000000 00 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00                    # Reserved
+        40                     # Prefixlen / IPv6 Home Network Prefix
+        00000000 00000000 00000000 00000000    #[POS_USERADDR]
+    
+    ### Service Selection (No Pad)
+    14 26
+        792d6d6f 64652e64 6f636f6d 6f2e6e65 # "y-mode.docomo.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        2e6a702e 6d6e6330 31302e6d 63633434
+        302e6770 7273
+    
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        03    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 04 00000000 # padding
+    ### Link-Local Address (8n+6)
+    1a 10        # Length
+        00000000 00000000 00000000 00000000
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000001    # downlink GRE Key
+    
+    01 00 # padding
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+    
+    00 # padding
+}
+
+
+
+
+
+
+#=================================================================================
+pdu PROXY_BINDING_UPDATE_YMODE_DETACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+
+    #=== PMIP ======================================
+    3b 13        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    0000        # Lifetime
+
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+
+    01 05 0000000000 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00                    # Reserved
+        00                    # prefix-len
+                                               # IPv6 Home Network Prefix
+        00000000 00000000 00000000 00000000    #[POS_HOME_NW_PREFIX]
+
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        04    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+
+    ### Service Selection (No Pad)
+    14 26
+        792d6d6f 64652e64 6f636f6d 6f2e6e65 # "y-mode.docomo.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        2e6a702e 6d6e6330 31302e6d 63633434
+        302e6770 7273
+}
+
+
+
+#=================================================================================
+#
+#    MOPERA
+#
+#=================================================================================
+pdu PROXY_BINDING_UPDATE_MOPERA_ATTACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    01 05 0000000000 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00                    # Reserved
+        00 00000000 00000000 00000000 00000000    # Prefixlen / IPv6 Home Network Prefix
+
+    01 04 00000000 # padding
+    ### Link-Local Address (8n+6)
+    1a 10        # Length
+        00000000 00000000 00000000 00000000
+
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000
+    
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        01    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+
+    ### Service Selection (No Pad)
+    14 1f
+        6d6f7065 72612e6e 652e6a70 2e6d6e63    # "mopera.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### PCO :3GPP-Vendor-Specific(4n+2)
+    13 36
+        000028af# Vendor-Id
+        01 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+            80    # ext
+            8021     # IPCP
+            10
+            01
+            00
+            0010
+                03 06 00000000
+                81 06 00000000
+            c023    # PAP
+            16
+            01
+            00
+            0016
+                06 757365726e31
+                0a 70617373776f7264        # passwordn1
+                                   6e31    #[POS_PAP_PASS]
+            0003 00    ## DNSv6 Address
+    
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+
+    01 01 00    # padding
+    ### 3GPP-Vendor-Specific:Mobile Equipment Identity (4n+2)
+    13 0e
+        000028af
+        0b 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        2143652121436521    # MEI
+
+    ### 3GPP-Vendor-Specific:MSISDN (4n+2)
+    13 0c
+        000028af
+        0c 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        180881171074    # MSISDN
+
+    01 00 # padding
+    ### 3GPP-Vendor-Specific:Serving Network  (4n+2)
+    13 09
+        000028af
+        0d 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        44f001    # MCC/MNC
+
+    00 # padding
+    ### 3GPP-Vendor-Specific:Maximum APN Restriction  (4n+2)
+    13 07
+        000028af
+        0f 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        00    # No Existing Contexts or Restriction(=0)
+    
+    00 # pad
+}
+
+pdu PROXY_BINDING_UPDATE_MOPERA_ATTACH_3G
+
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    01 05 0000000000 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00                    # Reserved
+        00 00000000 00000000 00000000 00000000    # Prefixlen / IPv6 Home Network Prefix
+
+    01 04 00000000 # padding
+    ### Link-Local Address (8n+6)
+    1a 10        # Length
+        00000000 00000000 00000000 00000000
+
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000
+    
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        01    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        07    # Access Technology Type  UTRAN(=7)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+
+    ### Service Selection (No Pad)
+    14 1f
+        6d6f7065 72612e6e 652e6a70 2e6d6e63    # "mopera.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### PCO :3GPP-Vendor-Specific(4n+2)
+    13 36
+        000028af# Vendor-Id
+        01 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+            80    # ext
+            8021     # IPCP
+            10
+            01
+            00
+            0010
+                03 06 00000000
+                81 06 00000000
+            c023    # PAP
+            16
+            01
+            00
+            0016
+                06 757365726e31
+                0a 70617373776f7264        # passwordn1
+                                   6e31    #[POS_PAP_PASS]
+            0003 00    ## DNSv6 Address
+    
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+
+    01 01 00    # padding
+    ### 3GPP-Vendor-Specific:Mobile Equipment Identity (4n+2)
+    13 0e
+        000028af
+        0b 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        2143652121436521    # MEI
+
+    ### 3GPP-Vendor-Specific:MSISDN (4n+2)
+    13 0c
+        000028af
+        0c 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        180881171074    # MSISDN
+
+    01 00 # padding
+    ### 3GPP-Vendor-Specific:Serving Network  (4n+2)
+    13 09
+        000028af
+        0d 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        44f001    # MCC/MNC
+
+    00 # padding
+    ### 3GPP-Vendor-Specific:Maximum APN Restriction  (4n+2)
+    13 07
+        000028af
+        0f 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        00    # No Existing Contexts or Restriction(=0)
+    
+    00 # pad
+}
+
+
+pdu PROXY_BINDING_UPDATE_MOPERA_SGWCHANGE
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    008c 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    00 # padding
+    ### Service Selection (No Pad)
+    14 1f
+        6d6f7065 72612e6e 652e6a70 2e6d6e63    # "mopera.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00 # Reserved
+        40 # Prefixlen
+           # IPv6 Home Network Prefix
+        00000000 00000000 00000000 00000000 #[POS_HOME_NW_PREFIX]
+    
+    00 # padding
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        03    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000        #[POS_USERADDR]
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+    
+    01 00  # padding
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+    
+    00 # padding
+}
+
+
+
+
+pdu PROXY_BINDING_UPDATE_MOPERA_DETACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+
+    #=== PMIP ======================================
+    3b 13        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    0000        # Lifetime
+
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    ### Service Selection (No Pad)
+    14 1f
+        6d6f7065 72612e6e 652e6a70 2e6d6e63    # "mopera.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    01 04 00000000 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00 # Reserved
+        40 # Prefixlen
+           # IPv6 Home Network Prefix
+        00000000 00000000 00000000 00000000 #[POS_HOME_NW_PREFIX]
+
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        04    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+
+    00 # padding
+    ### IPv4 Home prefix (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000 #[POS_USERADDR]
+
+    01 02 0000 # padding
+}
+
+
+
+#=================================================================================
+#
+#        SPMODE
+#
+#=================================================================================
+pdu PROXY_BINDING_UPDATE_SPMODE_ATTACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 26        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    01 05 00000000 00 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00 # Reserved
+        00 00000000 00000000 00000000 00000000 # Prefixlen / IPv6 Home Network Prefix
+
+    01 04 00000000 # padding
+    ### Link-Local Address (8n+6)
+    1a 10 # Length
+        00000000 00000000 00000000 00000000
+
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000
+
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        01    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+
+    ### Service Selection (No Pad)
+    14 1f
+        6e6f7065 72752e6e 652e6a70 2e6d6e63    # "noperu.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### PCO :3GPP-Vendor-Specific(4n+2)
+    13 36
+        000028af# Vendor-Id
+        01 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+            80    # ext
+            8021     # IPCP
+            10
+            01
+            00
+            0010
+                03 06 00000000
+                81 06 00000000
+            c023    # PAP
+            16
+            01
+            00
+            0016
+                06 757365726e31         # usern1
+                0a 70617373776f7264     # passwordn1
+                                   6e31 #[POS_PAP_PASS]
+            00 03 00 # DNS Server IPv6 Address
+
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+
+    01 01 00    # padding
+    ### 3GPP-Vendor-Specific:Mobile Equipment Identity (4n+2)
+    13 0e
+        000028af
+        0b 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        2143652121436521    # MEI
+
+    ### 3GPP-Vendor-Specific:MSISDN (4n+2)
+    13 0c
+        000028af
+        0c 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        180881171074    # MSISDN
+
+    01 00 # padding
+    ### 3GPP-Vendor-Specific:Serving Network  (4n+2)
+    13 09
+        000028af
+        0d 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        44f001    # MCC/MNC
+
+    00 # padding
+    ### 3GPP-Vendor-Specific:Maximum APN Restriction  (4n+2)
+    13 07
+        000028af
+        0f 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        00    # No Existing Contexts or Restriction(=0)
+    
+    00 # pad
+}
+
+
+
+
+pdu PROXY_BINDING_UPDATE_SPMODE_SGWCHANGE
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    00 # padding
+    ### Service Selection (No Pad)
+    14 1f
+        6e6f7065 72752e6e 652e6a70 2e6d6e63    # "noperu.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        03    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000        #[POS_USERADDR]
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+    
+    01 00  # padding
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+    
+    00 # padding
+}
+
+
+
+
+pdu PROXY_BINDING_UPDATE_SPMODE_DETACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+
+    #=== PMIP ======================================
+    3b 13        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    0000        # Lifetime
+
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    00 # padding
+    ### Service Selection (No Pad)
+    14 1f
+        6e6f7065 72752e6e 652e6a70 2e6d6e63    # "noperu.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### IPv4 Home prefix (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000    #[POS_USERADDR]
+    
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        04    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+}
+
+
+
+
+#=================================================================================
+#
+#        ISP
+#
+#=================================================================================
+pdu PROXY_BINDING_UPDATE_ISP_ATTACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 26        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    01 05 00000000 00 # padding
+    ### IPv6 Home Network Prefix (8n+4)
+    16 12
+        00 # Reserved
+        00 00000000 00000000 00000000 00000000 # Prefixlen / IPv6 Home Network Prefix
+
+    01 04 00000000 # padding
+    ### Link-Local Address (8n+6)
+    1a 10 # Length
+        00000000 00000000 00000000 00000000
+
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000
+
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        01    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+
+    ### Service Selection (No Pad)
+    14 1f
+        69737030 30312e6e 652e6a70 2e6d6e63    # "isp001.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### PCO :3GPP-Vendor-Specific(4n+2)
+    13 36
+        000028af# Vendor-Id
+        01 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+            80    # ext
+            8021     # IPCP
+            10
+            01
+            00
+            0010
+                03 06 00000000
+                81 06 00000000
+            c023    # PAP
+            16
+            01
+            00
+            0016
+                06 757365726e31         # usern1
+#                0a 70617373776f72646e31 # passwordn1
+                0a 70617373776f72643939 # password99
+            00 03 00 # DNS Server IPv6 Address
+
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+
+    01 01 00    # padding
+    ### 3GPP-Vendor-Specific:Mobile Equipment Identity (4n+2)
+    13 0e
+        000028af
+        0b 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        2143652121436521    # MEI
+
+    ### 3GPP-Vendor-Specific:MSISDN (4n+2)
+    13 0c
+        000028af
+        0c 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        180881171074    # MSISDN
+
+    01 00 # padding
+    ### 3GPP-Vendor-Specific:Serving Network  (4n+2)
+    13 09
+        000028af
+        0d 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        44f001    # MCC/MNC
+
+    00 # padding
+    ### 3GPP-Vendor-Specific:Maximum APN Restriction  (4n+2)
+    13 07
+        000028af
+        0f 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        00    # No Existing Contexts or Restriction(=0)
+    
+    00 # pad
+}
+
+
+
+
+pdu PROXY_BINDING_UPDATE_ISP_SGWCHANGE
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+    
+    #=== PMIP ======================================
+    3b 27        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    ffff        # Lifetime
+    
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    00 # padding
+    ### Service Selection (No Pad)
+    14 1f
+        69737030 30312e6e 652e6a70 2e6d6e63    # "isp001.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        03    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+    
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+    
+    ### IPv4 Home Address (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000        #[POS_USERADDR]
+    
+    ### GRE Key (4n)
+    21 06
+        00 00        # Reserved
+        00000002    # downlink GRE Key
+    
+    01 00  # padding
+    ### Selection-Mode :3GPP-Vendor-Specific(4n+2)
+    13 07
+        000028af
+        08 00    # sub-type  /  (Reserved:7bit / Fragment-Flag(1bit)
+        fc    # (Reserved:6bit / Selection Mode:2bit)
+    
+    00 # padding
+}
+
+
+
+
+pdu PROXY_BINDING_UPDATE_ISP_DETACH
+{
+    ###### IPv6 Header
+    60 00 00 00    # Ver / TC / Flowlabel
+    0078 87 00    # Payload Length / Next Header(PMIP) / Hop Counter
+    00000000 00000000 00000000 00000000    # src addr
+    00000000 00000000 00000000 00000000    # dst addr
+
+    #=== PMIP ======================================
+    3b 13        # Payload Proto / Header Length
+    05        # MH Type : Binding Update
+    00        # Reserved
+    0000 0000    # Checksum / Sequesnce Number
+    82        # Bit:0x82(Acknowledge)
+    00        # padding
+    0000        # Lifetime
+
+    ### Mobile Node Identifier
+    08 37
+        01 
+        30343430 31303135 34303034 30333034
+        406e6169 2e657063 2e6d6e63 3031302e
+        6d636334 34302e33 6770706e 6574776f
+        726b2e6f 7267
+    
+    00 # padding
+    ### Service Selection (No Pad)
+    14 1f
+        69737030 30312e6e 652e6a70 2e6d6e63    # "isp001.ne.jp.mnc010.mcc440.gprs"    #[POS_APN]
+        3031302e 6d636334 34302e67 707273  
+    
+    00 # padding
+    ### IPv4 Home prefix (4n)
+    1d 06
+        00 00    # prefixlen / reserved
+        00000000    #[POS_USERADDR]
+    
+    ### Handoff Indicator (No Pad)
+    17 02
+        00    # Reserved
+        04    # Handoff Indicator,  1:Attach, 3:S-GWchange, 4:Detach, 5:RAT-Change
+
+    ### Access Technology Type (No Pad)
+    18 02
+        00    # Reserved
+        08    # Access Technology Type  EUTRAN(=8)
+    
+    01 00 # padding
+    ### Timestamp (8n+2)
+    1B 08
+        00000000 00000000    #Timestamp
+}
+
+
+
+
+#=================================================================================
+#
+#    Binding Revocation Acknowledgement
+#
+#=================================================================================
+pdu BINDING_REVOCATION_ACK_V4V6
+{
+    #IPv6
+    60 00 00 00 #  Ver  TC       フローラベル
+                # 0110
+                #      00000000
+                #               0〜0(20ビット)
+
+    00 60       # ペイロード長(PMIPのサイズ)
+    87          # Next Header (0x87(135)->PMIP)
+    00          # ホップカウンタ
+    00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  # src addr
+    00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  # dst addr
+
+    # -------------------------------------------------------------
+    #PMIP
+    3b                #Payload Proto
+    11                #Header length
+    10                #MH Type : 
+    00                #Reserved
+    00 00             #Checksum
+    02                #Binding Revocation Type
+    00                #status
+    00 00             #Sequesnce Number
+    80                #Bit        Acknowledge (A)
+    00                # 
+    08                #Mobile Node Identifier option   08
+    37                #Length                          55
+    01                #SubType                         01
+    30                #0<IMSI>@nai.epc.mnc010.mcc440.3gppnetwork.org   
+    34 34 30 31       #
+    30 31 35 34       #
+    30 30 34 30       #
+    33 30 34 40       #
+    6E 61 69 2E       #
+    65 70 63 2E       #
+    6D 6E 63 30       #
+    31 30 2E 6D       #
+    63 63 34 34       #
+    30 2E 33 67       #
+    70 70 6E 65       #
+    74 77 6F 72       #
+    6B 2E 6F 72       #
+    67                #
+    01 05 00 00 00 00 #Padding
+    00                #Padding
+    16                #IPv6 Home Network Prefix option
+    12                #Length 
+    00                #Reserved
+    40                #Prefix Length
+    00 00 00 00       #IPv6 Home Network Prefix  #[POS_HOME_NW_PREFIX]
+    00 00 00 00       #
+    00 00 00 00       #
+    00 00 00 00       #
+
+    01 02 00 00       #Padding
+    1e                #IPv4 Home Address option
+    06                #Length
+    80                #Prefix-len
+    80                #Reserved
+    00 00 00 00       #IP Address                #[POS_USERADDR]
+    14                #Service Selection Mobility Option 
+    1F                #Length                            
+    6D 6F 70 65       #Service Selection Mobility Option    #[POS_APN]
+    72 69 2E 6E       #(moperi.ne.jp.mnc010.mcc440.gprs)
+    65 2E 6A 70       #
+    2E 6D 6E 63       #
+    30 31 30 2E       #
+    6D 63 63 34       #
+    34 30 2E 67       #
+    70 72 73          #
+    01 01 00          #Padding
+}
+
+
+pdu BINDING_REVOCATION_ACK_V4
+{
+    #IPv6
+    60 00 00 00 #  Ver  TC       フローラベル
+                # 0110
+                #      00000000
+                #               0〜0(20ビット)
+
+    00 60       # ペイロード長(PMIPのサイズ)
+    87          # Next Header (0x87(135)->PMIP)
+    00          # ホップカウンタ
+    00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  # src addr
+    00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00  # dst addr
+
+    # -------------------------------------------------------------
+    #PMIP
+    3b                #Payload Proto
+    11                #Header length
+    10                #MH Type : 
+    00                #Reserved
+    00 00             #Checksum
+    02                #Binding Revocation Type
+    00                #status
+    00 00             #Sequesnce Number
+    80                #Bit        Acknowledge (A)
+    00                # 
+
+    08                #Mobile Node Identifier option   08
+    37                #Length                          55
+    01                #SubType                         01
+    30                #0<IMSI>@nai.epc.mnc010.mcc440.3gppnetwork.org   
+    34 34 30 31       #
+    30 31 35 34       #
+    30 30 34 30       #
+    33 30 34 40       #
+    6E 61 69 2E       #
+    65 70 63 2E       #
+    6D 6E 63 30       #
+    31 30 2E 6D       #
+    63 63 34 34       #
+    30 2E 33 67       #
+    70 70 6E 65       #
+    74 77 6F 72       #
+    6B 2E 6F 72       #
+    67                #
+
+    14                #Service Selection Mobility Option 
+    1F                #Length                            
+    6D 6F 70 65       #Service Selection Mobility Option    #[POS_APN]
+    72 69 2E 6E       #(moperi.ne.jp.mnc010.mcc440.gprs)
+    65 2E 6A 70       #
+    2E 6D 6E 63       #
+    30 31 30 2E       #
+    6D 63 63 34       #
+    34 30 2E 67       #
+    70 72 73          #
+
+    01 04 00 00 00 00 #Padding
+    1e                #IPv4 Home Address option
+    06                #Length
+    00                #Prefix-len
+    00                #Reserved
+    00 00 00 00       #IP Address    #[POS_USERADDR]
+
+    01 02 00 00       #Padding
+}
+
+
